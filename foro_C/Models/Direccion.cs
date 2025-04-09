@@ -1,0 +1,11 @@
+﻿namespace foro_C.Models
+{
+    public class Direccion
+    {
+        public String Calle { get;  private set; }
+        public String Numero { get; private set; }
+
+      
+      
+    }
+}
