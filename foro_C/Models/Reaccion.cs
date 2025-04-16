@@ -1,11 +1,14 @@
 ﻿namespace foro_C.Models
 {
-    public class Reaccion
+    public class Reaccion : Interaccion
     {
-        public DateTime Fecha { get; private set; }
-        public String Texto { get; private set; }
-        public Miembro Miembro { get; private set; }
-        public Boolean MeGusta { get; private set; } 
+       public Boolean MeGusta { get; private set; }
+
+        // Propiedad relacional
+        public int RespuestaId { get; set; }
+
+        //Propiedad navegacional
         public Respuesta Respuesta { get; private set; }
+    
     }
 }

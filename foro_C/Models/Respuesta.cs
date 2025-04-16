@@ -2,6 +2,7 @@
 {
     public class Respuesta
     {
+        public int Id { get; set; }
         public DateTime Fecha {  get; private set; }
         public String Texto { get;  private set; }
         public Persona Miembro { get;  private set; }
