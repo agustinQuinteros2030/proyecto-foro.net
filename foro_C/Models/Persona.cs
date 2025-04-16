@@ -1,7 +1,8 @@
 ﻿namespace foro_C.Models
 {
-    public class Persona
+    public  abstract class Persona
     {
+        public int Id { get; private set; }
         public String UserName { get;  private set; }
         public String Nombre { get; private set; }
         public String Apellido {  get; private set; }
