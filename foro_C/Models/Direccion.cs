@@ -1,4 +1,6 @@
-﻿namespace foro_C.Models
+﻿using System;
+
+namespace foro_C.Models
 {
     public class Direccion
     {

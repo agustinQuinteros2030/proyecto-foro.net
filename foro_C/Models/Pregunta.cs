@@ -1,4 +1,6 @@
 ﻿using foro_C.Models;
+using System;
+using System.Collections.Generic;
 
 namespace foro_C.Models
 {
