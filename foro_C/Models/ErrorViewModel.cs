@@ -4,8 +4,16 @@ namespace foro_C.Models
     {
         private string requestId;
 
-        public string? RequestId { get => requestId; set => requestId = value; }
+        public string GetRequestId()
+        {
+            return requestId;
+        }
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public void SetRequestId(string value)
+        {
+            requestId = value;
+        }
+
+        public bool ShowRequestId => !string.IsNullOrEmpty(GetRequestId());
     }
 }
