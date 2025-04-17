@@ -15,5 +15,7 @@ namespace foro_C.Models
         }
 
         public bool ShowRequestId => !string.IsNullOrEmpty(GetRequestId());
+
+        public string RequestId { get; internal set; }
     }
 }
