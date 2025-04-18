@@ -2,8 +2,20 @@ namespace foro_C.Models
 {
     public class ErrorViewModel
     {
-        public string? RequestId { get; set; }
+        private string requestId;
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public string GetRequestId()
+        {
+            return requestId;
+        }
+
+        public void SetRequestId(string value)
+        {
+            requestId = value;
+        }
+
+        public bool ShowRequestId => !string.IsNullOrEmpty(GetRequestId());
+
+        public string RequestId { get; internal set; }
     }
 }

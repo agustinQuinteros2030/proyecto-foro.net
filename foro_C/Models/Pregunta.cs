@@ -1,4 +1,6 @@
 ﻿using foro_C.Models;
+using System;
+using System.Collections.Generic;
 
 namespace foro_C.Models
 {
@@ -13,6 +15,9 @@ namespace foro_C.Models
         // Propiedad navegacional
         public Entrada Entrada { get; private set; }
         public List<Respuesta> Respuestas { get; private set; }
+        
+        //prop relacional
+        public int RespuestaId {  get; private set; }
 
     }
 }
