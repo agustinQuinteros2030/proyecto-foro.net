@@ -1,3 +1,6 @@
+using foro_C.Models;
+using System;
+
 public class Interaccion
 {
       public int Id { get; set; }
