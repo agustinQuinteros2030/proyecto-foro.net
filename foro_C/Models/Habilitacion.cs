@@ -1,6 +1,6 @@
 ﻿namespace foro_C.Models
 {
-    public class Habitacion
+    public class Habilitacion
     {
 
     }
