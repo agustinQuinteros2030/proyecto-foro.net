@@ -13,6 +13,9 @@ namespace foro_C.Models
         public Boolean Activa { get; private set; }
         public Entrada Entrada { get; private set; }
         public List<Respuesta> Respuestas { get; private set; }
+        
+        //prop relacional
+        public int RespuestaId {  get; private set; }
 
 
     }
