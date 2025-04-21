@@ -8,7 +8,8 @@ namespace foro_C.Models
         public List<Pregunta> PreguntasRealizadas { get;  private set; } 
         public List<Respuesta> RespuestasRealizadas { get; private set; }
         public List<Reaccion> ReaccionesRealizadas {  get; private set; }
-        public List<Habilitacion> HabitacionesPrivadas { get; private set; }
+        public List<Habilitacion> HabilitacionesRealizadas { get; private set; }
+        
 
    
     }
