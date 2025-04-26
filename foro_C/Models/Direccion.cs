@@ -5,10 +5,10 @@ namespace foro_C.Models
     public class Direccion
     {
         public int Id{ get; set; }
-        public String Calle { get;  private set; }
-        public String Numero { get; private set; }
+        public String Calle { get;   set; }
+        public String Numero { get;  set; }
         //prop navegacional
-      public Persona persona { get;  private set; }
+      public Persona Persona { get;  set; }
         //prop relacional
      
       

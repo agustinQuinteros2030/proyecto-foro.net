@@ -1,12 +1,15 @@
-﻿using System;
+﻿using foro_C.HelpersDataAnotattions;
+using System;
 using System.Collections.Generic;
 
 namespace foro_C.Models
 {
     public class Entrada
     {
+        //titulo
         public int Id { get; set; }
         public DateTime Fecha { get; private set; }
+
         public String Titulo { get; private set; }
         public String Texto { get; private set; }
         public Boolean Privada { get; private set; }
