@@ -1,4 +1,5 @@
-﻿using System;
+﻿using foro_C.HelpersDataAnotattions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,27 +9,27 @@ namespace foro_C.Models
     {
         public int Id { get; private set; }
 
-        [Required (ErrorMessage ="campo obligatorio")]
-        [StringLength(15,MinimumLength =4)]
+        [Required (ErrorMessage =ErrorMsgs.Requerido)]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.CampoNumeros)]
         public String UserName { get;  private set; }
 
-        [Required(ErrorMessage = "El nombre es obligatorio.")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 50 caracteres.")]
+        [Required(ErrorMessage = ErrorMsgs.Requerido)]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.CampoNumeros)]
         public String Nombre { get; private set; }
 
-        [Required(ErrorMessage = "El apellido es obligatorio.")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "El apellido debe tener entre 2 y 50 caracteres.")]
+        [Required(ErrorMessage = ErrorMsgs.Requerido)]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.CampoNumeros)]
         public String Apellido { get; private set; }
 
-        [Required(ErrorMessage = "La fecha de alta es obligatoria.")]
+        [Required(ErrorMessage = ErrorMsgs.Requerido)]
         public DateTime FechaAlta { get; private set; }
 
-        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
-        [EmailAddress(ErrorMessage = "El correo electrónico no es válido.")]
-        [StringLength(50, ErrorMessage = "El correo electrónico no debe exceder los 50 caracteres.")]
+        [Required(ErrorMessage = ErrorMsgs.Requerido)]
+        [EmailAddress(ErrorMessage = ErrorMsgs.ErrorEmail)]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.CampoNumeros)]
+
         public String Email { get; private set; }
         //prop navegacional
-        [Required(ErrorMessage = "La dirección es obligatoria.")]
         public Direccion direccion { get; private set; }
         //prop relacional 
         public int DireccionID { get; private set; }
