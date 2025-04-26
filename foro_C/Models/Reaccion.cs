@@ -4,13 +4,13 @@ namespace foro_C.Models
 {
     public class Reaccion : Interaccion
     {
-       public Boolean MeGusta { get; private set; }
+        public TipoReaccion Tipo { get; set; }
 
         // Propiedad relacional
         public int RespuestaId { get; set; }
 
         //Propiedad navegacional
-        public Respuesta Respuesta { get; private set; }
-    
+        public Respuesta Respuesta { get; set; }
+
     }
 }
