@@ -4,11 +4,13 @@ namespace foro_C.Models
 {
     public class Miembro : Persona 
     {
-        public List<Entrada> EntradasCreadas { get;  private set; }
-        public List<Pregunta> PreguntasRealizadas { get;  private set; } 
-        public List<Respuesta> RespuestasRealizadas { get; private set; }
-        public List<Reaccion> ReaccionesRealizadas {  get; private set; }
-        public List<Habitacion> HabitacionesPrivadas { get; private set; }
+
+        public List<Entrada> Entradas { get;   set; }
+        public List<Pregunta> Preguntas { get;  set; } 
+        public List<Respuesta> Respuestas { get;  set; }
+        public List<Reaccion> Reacciones {  get;  set; }
+        public List<Habilitacion> Habilitaciones { get; set; }
+        
 
    
     }
