@@ -14,11 +14,13 @@ namespace foro_C.Models
         public String UserName { get; set; }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
+        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = ErrorMsgs.FormatoValidoLetras)]
         public String Nombre { get;  set; }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
+        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = ErrorMsgs.FormatoValidoLetras)]
         public String Apellido { get;  set; }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
@@ -32,7 +34,8 @@ namespace foro_C.Models
         public Direccion Direccion { get;  set; }
         //prop relacional 
         public int DireccionID { get;  set; }
-       
+        [Required(ErrorMessage = ErrorMsgs.Requerido)]
+        [RegularExpression(@"^\d{8,15}$", ErrorMessage = ErrorMsgs.FormatoValidoTelefono)]
         public int Telefono { get; set; }
     }
 }
