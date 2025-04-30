@@ -12,6 +12,6 @@ namespace foro_C.Models
       public Persona Persona { get;  set; }
         //prop relacional
      
-      
+      public int PersonaId { get; set; }
     }
 }

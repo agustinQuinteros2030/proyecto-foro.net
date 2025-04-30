@@ -8,6 +8,7 @@ namespace foro_C.Models
     public class Entrada
     {
         public int Id { get; set; }
+<<<<<<< HEAD
         public DateTime Fecha { get; set; }
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         [StringLength(100, MinimumLength = 1, ErrorMessage = ErrorMsgs.longitudValida)]
@@ -18,18 +19,33 @@ namespace foro_C.Models
 
         [Required]
         public Boolean Privada { get; set; }
+=======
+        public DateTime Fecha { get;  set; }
+
+        public String Titulo { get;  set; }
+        public String Texto { get;  set; }
+        public Boolean Privada { get;  set; }
+>>>>>>> agustinQuinteros
 
         // Propiedad relacional
         public int CategoriaId { get; set; }
         public int MiembroId { get; set; }
 
         // Propiedad navegacional
+<<<<<<< HEAD
         public Miembro Miembro { get; set; }
         public Categoria Categoria { get; set; }
 
         public List<Pregunta> Preguntas { get; set; }
         public List<Habilitacion> Habilitaciones { get; set; }
 
+=======
+        public Miembro Miembro { get;  set; }
+        public Categoria Categoria { get;  set; }
+
+        public List<Pregunta> Preguntas { get;  set; }
+        public List<Habilitacion> MiembrosHabilitados { get; set; }
+>>>>>>> agustinQuinteros
 
 
     }
