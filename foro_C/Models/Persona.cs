@@ -30,8 +30,6 @@ namespace foro_C.Models
         [EmailAddress(ErrorMessage = ErrorMsgs.ErrorEmail)]
         [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
         public String Email { get;  set; }
-        //prop navegacional
-        public Direccion Direccion { get;  set; }
         //prop relacional 
         public int DireccionID { get;  set; }
         [Required(ErrorMessage = ErrorMsgs.Requerido)]

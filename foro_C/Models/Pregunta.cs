@@ -17,7 +17,7 @@ namespace foro_C.Models
         public List<Respuesta> Respuestas { get;  set; }
         
         //prop relacional
-        public int RespuestaId {  get; set; }
+       
 
     }
 }
