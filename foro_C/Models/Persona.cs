@@ -10,7 +10,7 @@ namespace foro_C.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
+       // [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
         public String UserName { get; set; }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
@@ -24,16 +24,15 @@ namespace foro_C.Models
         public String Apellido { get;  set; }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        public DateTime FechaAlta { get; set; }
+        public DateTime FechaAlta { get; set; }= DateTime.Now;
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         [EmailAddress(ErrorMessage = ErrorMsgs.ErrorEmail)]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
         public String Email { get;  set; }
         //prop relacional 
         public int DireccionID { get;  set; }
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [RegularExpression(@"^\d{8,15}$", ErrorMessage = ErrorMsgs.FormatoValidoTelefono)]
+        [RegularExpression(@"^\d{8,15}$", ErrorMessage = ErrorMsgs.FormatoValidoNumero)]
         public int Telefono { get; set; }
     }
 }

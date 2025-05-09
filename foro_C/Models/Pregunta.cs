@@ -14,10 +14,10 @@ namespace foro_C.Models
 
         // Propiedad navegacional
         public Entrada Entrada { get;  set; }
-        public List<Respuesta> Respuestas { get;  set; }
-        
+        public List<Respuesta> Respuestas { get; set; } = new();
+
         //prop relacional
-       
+
 
     }
 }

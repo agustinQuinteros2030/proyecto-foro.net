@@ -10,7 +10,7 @@ namespace foro_C.Models
         //prop navegacional
           public Pregunta Pregunta {  get;  set; }
         //prop navegacional
-        public List<Reaccion> Reacciones { get; set; }
+        public List<Reaccion> Reacciones { get; set; }= new();
         
       
         public int PreguntaId { get;set; }

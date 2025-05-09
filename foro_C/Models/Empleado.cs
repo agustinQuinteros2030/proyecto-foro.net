@@ -8,6 +8,7 @@ namespace foro_C.Models
     {
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         [StringLength(15, MinimumLength = 4, ErrorMessage =ErrorMsgs.longitudValida)]
+        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = ErrorMsgs.FormatoValidoLetras)]
         public String Legajo { get; set; }
     }
 }
