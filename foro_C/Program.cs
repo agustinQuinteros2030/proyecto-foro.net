@@ -15,7 +15,7 @@ namespace foro_C
 
             var app = StartUp.inicializarApp(args);
 
-            // Configure the HTTP request pipeline.
+            
             app.Run();
 
         }
