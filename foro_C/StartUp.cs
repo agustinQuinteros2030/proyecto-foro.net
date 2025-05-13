@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using foro_C.Data;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -21,7 +23,10 @@ namespace foro_C
 
       private static void ConfiguresServices(WebApplicationBuilder builder)
         {
+            //tenemos configurado el entorno de bd
+            builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("Foro"));
             builder.Services.AddControllersWithViews();
+
         }
 
       private static void Configure(WebApplication app)
