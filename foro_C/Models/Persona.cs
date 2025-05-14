@@ -30,7 +30,7 @@ namespace foro_C.Models
         [EmailAddress(ErrorMessage = ErrorMsgs.ErrorEmail)]
         public String Email { get;  set; }
         //prop relacional 
-        public int DireccionID { get;  set; }
+     
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         [RegularExpression(@"^\d{8,15}$", ErrorMessage = ErrorMsgs.FormatoValidoNumero)]
         public int Telefono { get; set; }
