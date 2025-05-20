@@ -56,6 +56,5 @@ namespace foro_C.Data
         public DbSet<Habilitacion> Habilitaciones { get; set; }
       
         public DbSet<foro_C.Models.Persona> Persona { get; set; }
-        public DbSet<Interaccion> Interaccion { get; set; }
     }
 }
