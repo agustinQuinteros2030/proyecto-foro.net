@@ -25,7 +25,7 @@ namespace foro_C
         {
             //tenemos configurado el entorno de bd
             builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer("\"Server=(localdb)\\\\mssqllocaldb;Database=ForoDb;Trusted_Connection=True;\""));
-            builder.Configuration
+            
             builder.Services.AddControllersWithViews();
 
         }
