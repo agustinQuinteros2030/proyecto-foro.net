@@ -1,0 +1,13 @@
+﻿body {
+   
+}
+
+.navbar-brand {
+    background: url(../img/foroIcono.png) no-repeat;
+    background-size: 40px,40px;
+    height: 40px;
+    margin: 0px;
+    width: 40px;
+    border:solid black 1px;
+    background-color:green;
+}

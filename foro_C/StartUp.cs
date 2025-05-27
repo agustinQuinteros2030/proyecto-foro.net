@@ -24,7 +24,8 @@ namespace foro_C
       private static void ConfiguresServices(WebApplicationBuilder builder)
         {
             //tenemos configurado el entorno de bd
-            builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("Foro"));
+            builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer("\"Server=(localdb)\\\\mssqllocaldb;Database=ForoDb;Trusted_Connection=True;\""));
+            builder.Configuration
             builder.Services.AddControllersWithViews();
 
         }
