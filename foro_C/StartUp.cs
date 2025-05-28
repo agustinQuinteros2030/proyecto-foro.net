@@ -1,4 +1,5 @@
 ﻿using foro_C.Data;
+using foro_C.Models.helperPrecarga;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ namespace foro_C
             ConfiguresServices(builder);//lo configuramos con sus servicios 
             var app = builder.Build();//despues configuramos los middelware 
             Configure(app);
+           
 
             return app;
         }
@@ -25,25 +27,33 @@ namespace foro_C
         {
             //tenemos configurado el entorno de bd
             builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("Foro"));
+           
             builder.Services.AddControllersWithViews();
 
         }
 
       private static void Configure(WebApplication app)
         {
-            // Configure the HTTP request pipeline.
+            
+        
+            // Se ejecuta antes que empiece la app
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<ForoContext>();
+                Precarga.EnviarPrecarga(context); // ✅ Aquí llamás a la precarga
+            }
+
+            // Middleware HTTP
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.MapControllerRoute(
@@ -51,4 +61,7 @@ namespace foro_C
                 pattern: "{controller=Home}/{action=Index}/{id?}");
         }
     }
-}
+
+
+        
+    }

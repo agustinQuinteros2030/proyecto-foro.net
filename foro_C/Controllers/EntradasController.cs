@@ -59,12 +59,16 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Fecha,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
+        public async Task<IActionResult> Create([Bind("Id,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(entrada);
                 await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
