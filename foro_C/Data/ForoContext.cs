@@ -24,6 +24,8 @@ namespace foro_C.Data
         {
             base.OnModelCreating(modelBuilder);
 
+           
+
             // Clave compuesta
             modelBuilder.Entity<Habilitacion>()
                 .HasKey(h => new { h.MiembroId, h.EntradaId });

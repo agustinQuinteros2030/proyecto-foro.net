@@ -1,11 +1,12 @@
 ﻿using foro_C.HelpersDataAnotattions;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace foro_C.Models
 {
-    public abstract class Persona
+    public abstract class Persona:IdentityUser<int>
     {
         public int Id { get; set; }
 

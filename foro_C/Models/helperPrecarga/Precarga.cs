@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace foro_C.Models.helperPrecarga
 {
@@ -10,7 +11,7 @@ namespace foro_C.Models.helperPrecarga
 
         public static void EnviarPrecarga(ForoContext context)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
             if (!context.Empleados.Any())
             {
                 var empleados = new List<Empleado>

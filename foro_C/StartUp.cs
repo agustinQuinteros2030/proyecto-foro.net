@@ -1,7 +1,9 @@
 ﻿using foro_C.Data;
 using foro_C.Models.helperPrecarga;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -26,8 +28,9 @@ namespace foro_C
       private static void ConfiguresServices(WebApplicationBuilder builder)
         {
             //tenemos configurado el entorno de bd
-            builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("Foro"));
+            builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("foro1c7")));
            
+
             builder.Services.AddControllersWithViews();
 
         }
@@ -41,7 +44,9 @@ namespace foro_C
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ForoContext>();
-                Precarga.EnviarPrecarga(context); // ✅ Aquí llamás a la precarga
+               
+                    Precarga.EnviarPrecarga(context);
+              
             }
 
             // Middleware HTTP
