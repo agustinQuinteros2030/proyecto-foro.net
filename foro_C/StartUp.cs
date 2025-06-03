@@ -1,6 +1,9 @@
 ﻿using foro_C.Data;
+using foro_C.Models;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -9,7 +12,7 @@ namespace foro_C
 {
     public static class StartUp
     {
-        public static WebApplication inicializarApp (String[] args)
+        public static WebApplication inicializarApp(String[] args)
         {
             //creamos instancia de nuestro servidor web
             var builder = WebApplication.CreateBuilder(args);
@@ -21,16 +24,37 @@ namespace foro_C
             return app;
         }
 
-      private static void ConfiguresServices(WebApplicationBuilder builder)
+        private static void ConfiguresServices(WebApplicationBuilder builder)
         {
-            //tenemos configurado el entorno de bd
-            builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer("\"Server=(localdb)\\\\mssqllocaldb;Database=ForoDb;Trusted_Connection=True;\""));
-           
-            builder.Services.AddControllersWithViews();
+            // Configuramos la cadena de conexión a la base de datos
+            builder.Services.AddDbContext<ForoContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("foroDBCS"));
 
+            });
+
+            #region Configuración de Identity
+
+            builder.Services.AddIdentity<Persona, IdentityRole<int>>().AddEntityFrameworkStores<ForoContext>();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false; // No requiere caracteres especiales
+                options.Password.RequireLowercase = false; // No requiere letras minúsculas
+                options.Password.RequireUppercase = false; // No requiere letras mayúsculas
+                options.Password.RequireDigit = false; // No requiere dígitos
+                options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
+            });
+            #endregion
+
+            #region Configuración de MVC
+
+            #endregion
+
+            builder.Services.AddControllersWithViews();
         }
 
-      private static void Configure(WebApplication app)
+        private static void Configure(WebApplication app)
         {
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -44,7 +68,7 @@ namespace foro_C
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication(); // Añadimos la autenticación antes de la autorización  
             app.UseAuthorization();
 
             app.MapControllerRoute(
