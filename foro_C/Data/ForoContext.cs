@@ -1,11 +1,11 @@
 ﻿using foro_C.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace foro_C.Data
 {
-    public class ForoContext:DbContext
+    public class ForoContext : IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>
     {
         /*
          * La unidad de trabajo con la base de datos
@@ -44,9 +44,17 @@ namespace foro_C.Data
 
             //Cada Miembro puede tener muchas habilitaciones
             //Cada Entrada puede tener muchas habilitaciones
+
+
+            #region  Establecer Nombres para los Identity Stores
+            modelBuilder.Entity<IdentityUser<int>>().ToTable("Personas"); //resuelve el proble de ASPNETUSERS
+            modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles");
+            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("PersonaRoles");
+            #endregion
+
         }
 
-        
+
 
         public DbSet<Empleado> Empleados { get; set; }
         public DbSet<Miembro> Miembros { get; set; }
@@ -56,8 +64,10 @@ namespace foro_C.Data
         public DbSet<Respuesta> Respuestas { get; set; }
         public DbSet<Reaccion> Reacciones { get; set; }
         public DbSet<Habilitacion> Habilitaciones { get; set; }
-      
+
         public DbSet<foro_C.Models.Persona> Persona { get; set; }
         public DbSet<Interaccion> Interaccion { get; set; }
+
+        public DbSet<Rol> Roles { get; set; }
     }
 }
