@@ -36,8 +36,8 @@ namespace foro_C
 
         private static void Configure(WebApplication app)
         {
-            
-        
+
+
             // Se ejecuta antes que empiece la app
             using (var scope = app.Services.CreateScope())
             {
