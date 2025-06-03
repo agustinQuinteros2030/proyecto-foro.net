@@ -1,7 +1,9 @@
 ﻿using foro_C.Data;
-using foro_C.Models.helperPrecarga;
+using foro_C.Models;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -10,7 +12,7 @@ namespace foro_C
 {
     public static class StartUp
     {
-        public static WebApplication inicializarApp (String[] args)
+        public static WebApplication inicializarApp(String[] args)
         {
             //creamos instancia de nuestro servidor web
             var builder = WebApplication.CreateBuilder(args);
@@ -23,16 +25,15 @@ namespace foro_C
             return app;
         }
 
-      private static void ConfiguresServices(WebApplicationBuilder builder)
+        private static void ConfiguresServices(WebApplicationBuilder builder)
         {
             //tenemos configurado el entorno de bd
-            builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("Foro"));
+            builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer("\"Server=(localdb)\\\\mssqllocaldb;Database=ForoDb;Trusted_Connection=True;\""));
            
             builder.Services.AddControllersWithViews();
-
         }
 
-      private static void Configure(WebApplication app)
+        private static void Configure(WebApplication app)
         {
             
         
@@ -54,6 +55,7 @@ namespace foro_C
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+
             app.UseAuthorization();
 
             app.MapControllerRoute(
