@@ -11,8 +11,8 @@ namespace foro_C.Models.helperPrecarga
 
         public static void EnviarPrecarga(ForoContext context)
         {
-            context.Database.Migrate();
-            if (!context.Empleados.Any())
+            
+            if (!context.Empleados.Any()
             {
                 var empleados = new List<Empleado>
                 {
