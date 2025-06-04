@@ -154,13 +154,13 @@ namespace foro_C.Data.Migrations
                         column: x => x.CategoriaId,
                         principalTable: "Categorias",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Entradas_Personas_MiembroId",
                         column: x => x.MiembroId,
                         principalTable: "Personas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -231,6 +231,7 @@ namespace foro_C.Data.Migrations
                         principalTable: "Personas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+
                 });
 
             migrationBuilder.CreateTable(
@@ -257,7 +258,7 @@ namespace foro_C.Data.Migrations
                         column: x => x.EntradaId,
                         principalTable: "Entradas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Interaccion_Interaccion_PreguntaId",
                         column: x => x.PreguntaId,

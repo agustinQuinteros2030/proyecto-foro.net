@@ -397,3 +397,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /foro_C/HelperErrorMsg/ErrorMsgs.cs
+/foro_C/Models/helperPrecarga/Precarga.cs
+/.gitignore
+/.gitignore

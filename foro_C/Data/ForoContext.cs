@@ -15,14 +15,14 @@ namespace foro_C.Data
          * */
 
 
-        public ForoContext(DbContextOptions options) : base(options)
-        {
-
-        }
+        public ForoContext(DbContextOptions<ForoContext> options)
+        : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
 
             // Clave compuesta
             modelBuilder.Entity<Habilitacion>()
@@ -51,8 +51,6 @@ namespace foro_C.Data
             #endregion
 
         }
-
-
 
         public DbSet<Empleado> Empleados { get; set; }
         public DbSet<Miembro> Miembros { get; set; }

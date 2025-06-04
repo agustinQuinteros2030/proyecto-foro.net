@@ -1,0 +1,11 @@
+﻿body {
+    background-color:aqua
+}
+.navbar-brand {
+    background:url('../img/foro.png') no-repeat;
+    background-size:40px,40px;
+    height:40px;
+    width:40px;
+    margin:0px;
+    
+}

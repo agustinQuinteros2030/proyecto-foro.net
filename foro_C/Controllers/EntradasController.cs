@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using foro_C.Data;
+using foro_C.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using foro_C.Data;
-using foro_C.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
@@ -59,7 +57,7 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Fecha,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
+        public async Task<IActionResult> Create([Bind("Id,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
         {
             if (ModelState.IsValid)
             {
@@ -67,9 +65,13 @@ namespace foro_C.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.MiembroId);
-            return View(entrada);
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            //ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
+            //ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.MiembroId);
+            //return View(entrada);
         }
 
         // GET: Entradas/Edit/5

@@ -59,7 +59,7 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Activa,EntradaId,Id,Fecha,Texto,MiembroId")] Pregunta pregunta)
+        public async Task<IActionResult> Create([Bind("Activa,EntradaId,Id,Texto,MiembroId")] Pregunta pregunta)
         {
             if (ModelState.IsValid)
             {
