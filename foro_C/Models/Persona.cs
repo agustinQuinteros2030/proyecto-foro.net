@@ -1,7 +1,6 @@
 ﻿using foro_C.HelpersDataAnotattions;
 using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace foro_C.Models
@@ -12,7 +11,9 @@ namespace foro_C.Models
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         // [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
-        public override String UserName {
+
+        public override String UserName
+        {
             get { return base.UserName; }
             set { base.UserName = value; }
         }
