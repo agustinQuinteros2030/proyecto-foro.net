@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing;
 
 namespace foro_C.Models.helperPrecarga
 {
@@ -61,6 +62,7 @@ namespace foro_C.Models.helperPrecarga
             context.SaveChanges();
 
 
+            //var miembro1id = context.Miembros.FirstOrDefault(m => m.UserName == "iron.agus");
             // ENTRADAS CON PREGUNTAS Y RESPUESTAS VARIADAS
             var entrada1 = new Entrada
             {
@@ -69,8 +71,7 @@ namespace foro_C.Models.helperPrecarga
                 Fecha = DateTime.Now,
                 Privada = false,
                 Categoria = categorias.First(c => c.Nombre == "Powerlifting"),
-                Miembro = context.Miembros.First(m => m.UserName == "iron.agus"),
-                Preguntas = new List<Pregunta>()
+                Miembro = context.Miembros.FirstOrDefault(m => m.UserName == "iron.agus")
             };
 
             var entrada2 = new Entrada
@@ -80,8 +81,8 @@ namespace foro_C.Models.helperPrecarga
                 Fecha = DateTime.Now,
                 Privada = true,
                 Categoria = categorias.First(c => c.Nombre == "Videojuegos"),
-                Miembro = context.Miembros.First(m => m.UserName == "gamer.ari"),
-                Preguntas = new List<Pregunta>()
+                Miembro = context.Miembros.First(m => m.UserName == "gamer.ari")
+                
             };
 
             var entrada3 = new Entrada
@@ -91,8 +92,8 @@ namespace foro_C.Models.helperPrecarga
                 Fecha = DateTime.Now,
                 Privada = false,
                 Categoria = categorias.First(c => c.Nombre == "Cocina"),
-                Miembro = context.Miembros.First(m => m.UserName == "chef.lu"),
-                Preguntas = new List<Pregunta>()
+                Miembro = context.Miembros.First(m => m.UserName == "chef.lu")
+                
             };
 
             context.Entradas.AddRange(entrada1, entrada2, entrada3);

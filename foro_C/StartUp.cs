@@ -29,7 +29,19 @@ namespace foro_C
         private static void ConfiguresServices(WebApplicationBuilder builder)
         {
             //tenemos configurado el entorno de bd
-            builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer("\"Server=(localdb)\\\\mssqllocaldb;Database=ForoDb;Trusted_Connection=True;\""));
+
+            string hostname = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "localhost";
+
+            if(hostname is not "DESKTOP-773F6PF")
+            {
+                builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer("\"Server=(localdb)\\\\mssqllocaldb;Database=ForoDb;Trusted_Connection=True;\"")); 
+            }
+            else
+            {
+                builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("MiDB"));
+            }
+
+                
            
             builder.Services.AddControllersWithViews();
         }

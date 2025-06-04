@@ -12,7 +12,10 @@ namespace foro_C.Models
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         // [StringLength(50, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
-        public override String UserName { get; set; }
+        public override String UserName {
+            get { return base.UserName; }
+            set { base.UserName = value; }
+        }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         [StringLength(30, MinimumLength = 2, ErrorMessage = ErrorMsgs.longitudValida)]
