@@ -13,7 +13,7 @@ namespace foro_C
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            var app = StartUp.inicializarApp(args);
+            var app = StartUp.InicializarApp(args);
 
             
             app.Run();

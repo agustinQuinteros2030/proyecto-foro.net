@@ -1,1 +1,39 @@
-@model Miembro
+@model RegistroUsuario
+
+@{
+    ViewData["Title"] = "Registrar";
+}
+
+<link rel="stylesheet" href="~/css/login.css" />
+<div class="login-container">
+    <h2>Registrarse</h2>
+    <form asp-action = "Registrar">
+        <div class="form-group">
+            <label asp-for="Email">Correo electrónico</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Password">Contraseña</label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ConfirmPassword"> Confirmar Contraseña</label>
+            <input asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block" value="Registrar">Registrarse</button>
+        </div>
+        <div class="form-links">
+            <a href="/Account/ForgotPassword">¿Has olvidado tu contraseña?</a><br />
+            <span>¿Ya tienes cuenta? <a href="/Account/Login">Inicia sesión</a></span>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");
+   }
+}
