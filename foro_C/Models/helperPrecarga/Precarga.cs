@@ -1,9 +1,7 @@
 ﻿using foro_C.Data;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using System.Drawing;
 
 namespace foro_C.Models.helperPrecarga
 {
@@ -12,7 +10,8 @@ namespace foro_C.Models.helperPrecarga
 
         public static void EnviarPrecarga(ForoContext context)
         {
-            
+
+
             if (!context.Empleados.Any())
             {
                 var empleados = new List<Empleado>
@@ -82,7 +81,7 @@ namespace foro_C.Models.helperPrecarga
                 Privada = true,
                 Categoria = categorias.First(c => c.Nombre == "Videojuegos"),
                 Miembro = context.Miembros.First(m => m.UserName == "gamer.ari")
-                
+
             };
 
             var entrada3 = new Entrada
@@ -93,11 +92,11 @@ namespace foro_C.Models.helperPrecarga
                 Privada = false,
                 Categoria = categorias.First(c => c.Nombre == "Cocina"),
                 Miembro = context.Miembros.First(m => m.UserName == "chef.lu")
-                
+
             };
 
             context.Entradas.AddRange(entrada1, entrada2, entrada3);
-          
+
 
             // PREGUNTAS
             var pregunta1 = new Pregunta
@@ -128,7 +127,7 @@ namespace foro_C.Models.helperPrecarga
             };
 
             context.Preguntas.AddRange(pregunta1, pregunta2, pregunta3);
-          
+
 
             // RESPUESTAS
             var respuesta1 = new Respuesta
@@ -156,7 +155,7 @@ namespace foro_C.Models.helperPrecarga
             };
 
             context.Respuestas.AddRange(respuesta1, respuesta2, respuesta3);
-            
+
 
             // REACCIONES
             var reaccion1 = new Reaccion
@@ -191,12 +190,12 @@ namespace foro_C.Models.helperPrecarga
         }
     }
 }
-            
-        
 
 
 
 
 
-    
+
+
+
 

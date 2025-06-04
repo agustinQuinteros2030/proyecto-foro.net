@@ -15,7 +15,8 @@ namespace foro_C.Data
          * */
 
 
-        public ForoContext(DbContextOptions options) : base(options)
+        public ForoContext(DbContextOptions<ForoContext> options)
+        : base(options)
         {
 
         }
@@ -24,7 +25,7 @@ namespace foro_C.Data
         {
             base.OnModelCreating(modelBuilder);
 
-           
+
 
             // Clave compuesta
             modelBuilder.Entity<Habilitacion>()

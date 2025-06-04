@@ -1,6 +1,6 @@
 ﻿namespace foro_C
 {
-    internal class services
+    internal class Services
     {
     }
 }

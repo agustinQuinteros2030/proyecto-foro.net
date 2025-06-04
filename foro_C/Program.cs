@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace foro_C
 {
@@ -15,10 +13,10 @@ namespace foro_C
             builder.Services.AddControllersWithViews();
 
 
-            var app = StartUp.inicializarApp(args);
-            
+            var app = StartUp.InicializarApp(args);
 
-            
+
+
             app.Run();
 
         }

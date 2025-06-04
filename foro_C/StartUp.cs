@@ -13,7 +13,7 @@ namespace foro_C
 {
     public static class StartUp
     {
-        public static WebApplication inicializarApp(String[] args)
+        public static WebApplication InicializarApp(String[] args)
         {
             //creamos instancia de nuestro servidor web
             var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +21,7 @@ namespace foro_C
             ConfiguresServices(builder);//lo configuramos con sus servicios 
             var app = builder.Build();//despues configuramos los middelware 
             Configure(app);
-           
+
 
             return app;
         }
@@ -32,18 +32,41 @@ namespace foro_C
 
             string hostname = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "localhost";
 
-            if(hostname is not "DESKTOP-773F6PF")
-            {
-                builder.Services.AddDbContext<ForoContext>(options => options.UseSqlServer("\"Server=(localdb)\\\\mssqllocaldb;Database=ForoDb;Trusted_Connection=True;\"")); 
-            }
-            else
+            if (hostname is not "DESKTOP-773F6PF")
             {
                 builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("MiDB"));
             }
+            else
+            {
+                builder.Services.AddDbContext<ForoContext>(options =>
+                {
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("foroDBCS"));
 
-                
-           
+                });
+            }
+
+
+            #region Configuración de Identity
+
+            builder.Services.AddIdentity<Persona, IdentityRole<int>>().AddEntityFrameworkStores<ForoContext>();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false; // No requiere caracteres especiales
+                options.Password.RequireLowercase = false; // No requiere letras minúsculas
+                options.Password.RequireUppercase = false; // No requiere letras mayúsculas
+                options.Password.RequireDigit = false; // No requiere dígitos
+                options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
+            });
+            #endregion
+
+            #region Configuración de MVC
+
+            #endregion
+
+
             builder.Services.AddControllersWithViews();
+
         }
 
         private static void Configure(WebApplication app)
@@ -68,7 +91,7 @@ namespace foro_C
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-
+            app.UseAuthentication(); // autenticamos antes de autorizar
             app.UseAuthorization();
 
             app.MapControllerRoute(
@@ -78,5 +101,5 @@ namespace foro_C
     }
 
 
-        
-    }
+
+}
