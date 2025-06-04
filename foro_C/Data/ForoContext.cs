@@ -16,10 +16,7 @@ namespace foro_C.Data
 
 
         public ForoContext(DbContextOptions<ForoContext> options)
-        : base(options)
-        {
-
-        }
+        : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,8 +51,6 @@ namespace foro_C.Data
             #endregion
 
         }
-
-
 
         public DbSet<Empleado> Empleados { get; set; }
         public DbSet<Miembro> Miembros { get; set; }

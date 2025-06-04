@@ -12,8 +12,8 @@ using foro_C.Data;
 namespace foro_C.Data.Migrations
 {
     [DbContext(typeof(ForoContext))]
-    [Migration("20250604045513_inicial")]
-    partial class inicial
+    [Migration("20250604152404_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -45,7 +45,6 @@ namespace foro_C
                 });
             }
 
-
             #region Configuración de Identity
 
             builder.Services.AddIdentity<Persona, IdentityRole<int>>().AddEntityFrameworkStores<ForoContext>();
@@ -60,9 +59,6 @@ namespace foro_C
             });
             #endregion
 
-            #region Configuración de MVC
-
-            #endregion
 
 
             builder.Services.AddControllersWithViews();
