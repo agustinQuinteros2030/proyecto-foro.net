@@ -13,71 +13,74 @@ namespace foro_C
 {
     public static class StartUp
     {
-        public static WebApplication InicializarApp(String[] args)
+        public static WebApplication InicializarApp(string[] args)
         {
-            //creamos instancia de nuestro servidor web
             var builder = WebApplication.CreateBuilder(args);
-
-            ConfiguresServices(builder);//lo configuramos con sus servicios 
-            var app = builder.Build();//despues configuramos los middelware 
+            ConfiguresServices(builder);
+            var app = builder.Build();
             Configure(app);
-
-
             return app;
         }
 
         private static void ConfiguresServices(WebApplicationBuilder builder)
         {
-            //tenemos configurado el entorno de bd
-
             string hostname = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "localhost";
 
             if (hostname is not "DESKTOP-773F6PF")
             {
-                builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("MiDB"));
+                builder.Services.AddDbContext<ForoContext>(options =>
+                    options.UseInMemoryDatabase("MiDB"));
             }
             else
             {
                 builder.Services.AddDbContext<ForoContext>(options =>
-                {
-                    options.UseSqlServer(builder.Configuration.GetConnectionString("foroDBCS"));
-
-                });
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("foroDBCS")));
             }
 
-            #region Configuración de Identity
-
-            builder.Services.AddIdentity<Persona, IdentityRole<int>>().AddEntityFrameworkStores<ForoContext>();
+            builder.Services.AddIdentity<Persona, IdentityRole<int>>()
+                .AddEntityFrameworkStores<ForoContext>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
-                options.Password.RequireNonAlphanumeric = false; // No requiere caracteres especiales
-                options.Password.RequireLowercase = false; // No requiere letras minúsculas
-                options.Password.RequireUppercase = false; // No requiere letras mayúsculas
-                options.Password.RequireDigit = false; // No requiere dígitos
-                options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
             });
-            #endregion
-
-
 
             builder.Services.AddControllersWithViews();
-
         }
 
         private static void Configure(WebApplication app)
         {
-
-
-            // Se ejecuta antes que empiece la app
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ForoContext>();
-                Precarga.EnviarPrecarga(context); // ✅ Aquí llamás a la precarga
+
+                string proveedor = context.Database.ProviderName ?? "";
+
+                if (proveedor.Contains("InMemory", StringComparison.OrdinalIgnoreCase))
+                {
+                    PrecargaInMemory.EnviarPrecarga(context);
+                }
+                else
+                {
+                    try
+                    {
+                        context.Database.Migrate();
+                        Precarga.EnviarPrecarga(context);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("⚠ Error al conectar con SQL Server:");
+                        Console.WriteLine(ex.Message);
+                        throw;
+                    }
+                }
             }
 
-            // Middleware HTTP
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -87,15 +90,14 @@ namespace foro_C
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseAuthentication(); // autenticamos antes de autorizar
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
         }
+
+
+    } 
     }
-
-
-
-}
