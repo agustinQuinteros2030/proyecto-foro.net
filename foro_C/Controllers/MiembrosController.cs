@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using foro_C.Data;
+using foro_C.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using foro_C.Data;
-using foro_C.Models;
 
 namespace foro_C.Controllers
 {
@@ -56,6 +53,7 @@ namespace foro_C.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserName,Nombre,Apellido,Email,Telefono")] Miembro miembro)
         {
+
             if (ModelState.IsValid)
             {
                 _context.Add(miembro);
@@ -86,9 +84,9 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Nombre,Apellido,FechaAlta,Email,DireccionID,Telefono")] Miembro miembro)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Nombre,Apellido,FechaAlta,Email,DireccionID,Telefono")] Miembro miembroFormulario)
         {
-            if (id != miembro.Id)
+            if (id != miembroFormulario.Id)
             {
                 return NotFound();
             }
@@ -97,12 +95,30 @@ namespace foro_C.Controllers
             {
                 try
                 {
-                    _context.Update(miembro);
+                    var miembroEnDb = await _context.Miembros.FindAsync(id);
+
+                    if (miembroEnDb == null)
+                    {
+                        return NotFound();
+                    }
+                    miembroEnDb.Id = miembroFormulario.Id;
+                    miembroEnDb.UserName = miembroFormulario.UserName;
+                    miembroEnDb.Nombre = miembroFormulario.Nombre;
+                    miembroEnDb.Apellido = miembroFormulario.Apellido;
+                    miembroEnDb.Telefono = miembroFormulario.Telefono;
+
+                    if (!ActualizarEmail(miembroFormulario, miembroEnDb))
+                    {
+                        ModelState.AddModelError("Email", "El email ya está en uso por otro usuario.");
+                        return View(miembroFormulario);
+                    }
+
+                    _context.Update(miembroEnDb);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MiembroExists(miembro.Id))
+                    if (!MiembroExists(miembroFormulario.Id))
                     {
                         return NotFound();
                     }
@@ -113,7 +129,44 @@ namespace foro_C.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(miembro);
+            return View(miembroFormulario);
+        }
+
+        private bool ActualizarEmail(Miembro miembroFormulario, Miembro emailActual)
+        {
+            bool resultado = true;
+            try
+            {
+                if (!emailActual.NormalizedEmail.Equals(miembroFormulario.Email.ToUpper()))
+                {
+                    //si no son iguales, actualizamos el email
+                    if (ExistEmail(miembroFormulario.Email))
+                    {
+
+                        resultado = false; // Email ya existe
+                    }
+                    else
+                    {
+                        emailActual.Email = miembroFormulario.Email;
+                        emailActual.NormalizedEmail = miembroFormulario.Email.ToUpper();
+                    }
+                }
+                else
+                {
+                    //si son iguales, no hacemos nada
+                    resultado = true; // Email no se actualiza, pero no hay error
+                }
+            }
+            catch
+            {
+                resultado = false; // Error al actualizar el email
+            }
+            return resultado;
+        }
+
+        private bool ExistEmail(string email)
+        {
+            return _context.Miembros.Any(m => m.Email == email.ToUpper());
         }
 
         // GET: Miembros/Delete/5

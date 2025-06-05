@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.ComponentModel.DataAnnotations;
-using foro_C.HelpersDataAnotattions;
 
 namespace foro_C.Models
 {

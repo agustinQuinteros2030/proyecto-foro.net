@@ -38,6 +38,7 @@ namespace foro_C.Models
             get { return base.Email; }
             set { base.Email = value; }
         }
+
         //prop relacional 
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]

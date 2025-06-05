@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using foro_C.Data;
+using foro_C.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using foro_C.Data;
-using foro_C.Models;
 
 namespace foro_C.Controllers
 {

@@ -8,7 +8,7 @@ namespace foro_C.Models
     public class Entrada
     {
         public int Id { get; set; }
-        public DateTime Fecha { get; set; }= DateTime.Now;
+        public DateTime Fecha { get; set; } = DateTime.Now;
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
         [StringLength(100, MinimumLength = 10, ErrorMessage = ErrorMsgs.longitudValida)]
         public String Titulo { get; set; }
@@ -17,7 +17,7 @@ namespace foro_C.Models
         public String Texto { get; set; }
 
         [Required]
-        public Boolean Privada { get; set; }=true;
+        public Boolean Privada { get; set; } = true;
 
         // Propiedad relacional
         [Required(ErrorMessage = ErrorMsgs.Requerido)]

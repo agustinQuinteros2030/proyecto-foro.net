@@ -352,6 +352,12 @@ namespace foro_C.Data.Migrations
                 column: "NormalizedName",
                 unique: true,
                 filter: "[NormalizedName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "EmailIndexPersona",
+                table: "Personas",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />

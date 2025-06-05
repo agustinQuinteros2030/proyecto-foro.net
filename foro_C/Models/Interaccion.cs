@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 public class Interaccion
 {
     public int Id { get; set; }
-    public DateTime Fecha { get; set; }= DateTime.Now;
+    public DateTime Fecha { get; set; } = DateTime.Now;
 
     [Required(ErrorMessage = ErrorMsgs.Requerido)]
     [StringLength(1000, MinimumLength = 1, ErrorMessage = ErrorMsgs.longitudValida)]

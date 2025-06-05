@@ -1,6 +1,8 @@
 ﻿using foro_C.Data;
+using foro_C.Models;
 using foro_C.Models.helperPrecarga;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +32,7 @@ namespace foro_C
 
             string hostname = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? "localhost";
 
-            if (hostname is not "DESKTOP-773F6PF")
+            if (hostname is "DESKTOP-773F6PF")
             {
                 builder.Services.AddDbContext<ForoContext>(options => options.UseInMemoryDatabase("MiDB"));
             }
@@ -42,6 +44,20 @@ namespace foro_C
 
                 });
             }
+
+            #region Configuración de Identity
+
+            builder.Services.AddIdentity<Persona, IdentityRole<int>>().AddEntityFrameworkStores<ForoContext>();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false; // No requiere caracteres especiales
+                options.Password.RequireLowercase = false; // No requiere letras minúsculasAdd commentMore actions
+                options.Password.RequireUppercase = false; // No requiere letras mayúsculas
+                options.Password.RequireDigit = false; // No requiere dígitos
+                options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
+            });
+            #endregion
 
             builder.Services.AddControllersWithViews();
 

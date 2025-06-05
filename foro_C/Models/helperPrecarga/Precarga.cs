@@ -96,7 +96,7 @@ namespace foro_C.Models.helperPrecarga
             };
 
             context.Entradas.AddRange(entrada1, entrada2, entrada3);
-
+            context.SaveChanges();
 
             // PREGUNTAS
             var pregunta1 = new Pregunta
@@ -127,7 +127,7 @@ namespace foro_C.Models.helperPrecarga
             };
 
             context.Preguntas.AddRange(pregunta1, pregunta2, pregunta3);
-
+            context.SaveChanges();
 
             // RESPUESTAS
             var respuesta1 = new Respuesta
@@ -155,7 +155,7 @@ namespace foro_C.Models.helperPrecarga
             };
 
             context.Respuestas.AddRange(respuesta1, respuesta2, respuesta3);
-
+            context.SaveChanges();
 
             // REACCIONES
             var reaccion1 = new Reaccion
@@ -177,6 +177,7 @@ namespace foro_C.Models.helperPrecarga
             };
 
             context.Reacciones.AddRange(reaccion1, reaccion2);
+            context.SaveChanges();
 
             // HABILITACIÓN para la entrada privada
             var habilitacion = new Habilitacion

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace foro_C.Models
+﻿namespace foro_C.Models
 {
     public class Reaccion : Interaccion
     {

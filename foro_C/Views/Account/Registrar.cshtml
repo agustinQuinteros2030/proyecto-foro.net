@@ -9,6 +9,26 @@
     <h2>Registrarse</h2>
     <form asp-action = "Registrar">
         <div class="form-group">
+            <label asp-for="Nombre">Nombre</label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Apellido">Apellido</label>
+            <input asp-for="Apellido" class="form-control" />
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Telefono" class="control-label">Telefono</label>
+            <input asp-for="Telefono" class="form-control"type="tel"/>
+            <span asp-validation-for="Telefono" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="UserName">UserName</label>
+            <input asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
             <label asp-for="Email">Correo electrónico</label>
             <input asp-for="Email" class="form-control" />
             <span asp-validation-for="Email" class="text-danger"></span>
@@ -21,14 +41,15 @@
         <div class="form-group">
             <label asp-for="ConfirmPassword"> Confirmar Contraseña</label>
             <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         </div>
         <div class="form-group">
             <button type="submit" class="btn btn-primary btn-block" value="Registrar">Registrarse</button>
+          
         </div>
         <div class="form-links">
-            <a href="/Account/ForgotPassword">¿Has olvidado tu contraseña?</a><br />
-            <span>¿Ya tienes cuenta? <a href="/Account/Login">Inicia sesión</a></span>
+            <a href="ForgotPassword">¿Has olvidado tu contraseña?</a><br />
+            <span>¿Ya tienes cuenta? <a href="IniciarSesion">Inicia sesión</a></span>
         </div>
     </form>
 </div>

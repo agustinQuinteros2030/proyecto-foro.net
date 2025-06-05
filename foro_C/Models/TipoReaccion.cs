@@ -6,5 +6,5 @@ namespace foro_C.Models
         MeGusta = 1,
         NoMeGusta = 2
     }
-   
+
 }

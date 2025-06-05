@@ -1,7 +1,4 @@
-using System.Diagnostics;
-using foro_C.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace foro_C.Controllers
 {
