@@ -1,3 +1,4 @@
+using foro_C.Helpers;
 using foro_C.Models;
 using foro_C.ViewsModels;
 using Microsoft.AspNetCore.Identity;
@@ -51,9 +52,20 @@ namespace foro_C.Controllers
 
                 if (resultadoCreate.Succeeded)
                 {
-                    await _signInManager.SignInAsync(miembroACrear, isPersistent: false);
-                    return RedirectToAction("Edit", "Miembros", new { id = miembroACrear.Id }); // Redirigir a la página de inicio o a donde desees
+                    var resultadoAddRole = await _usermanager.AddToRoleAsync(miembroACrear, Confings.MiembroRole);
+
+                    if (resultadoAddRole.Succeeded)
+                    {
+
+                        await _signInManager.SignInAsync(miembroACrear, isPersistent: false);
+                        return RedirectToAction("Edit", "Miembros", new { id = miembroACrear.Id }); // Redirigir a la página de inicio o a donde desees
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(Confings.AdminRole, "Error al asignar el rol al usuario. Por favor, intente nuevamente.");
+                    }
                 }
+
                 else
                 {
                     foreach (var error in resultadoCreate.Errors)

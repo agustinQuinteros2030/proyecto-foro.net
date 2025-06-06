@@ -1,5 +1,7 @@
 ﻿using foro_C.Data;
+using foro_C.Helpers;
 using foro_C.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -10,10 +12,12 @@ namespace foro_C.Controllers
     public class PersonasController : Controller
     {
         private readonly ForoContext _context;
+        private readonly UserManager<Persona> _userManager;
 
-        public PersonasController(ForoContext context)
+        public PersonasController(ForoContext context, UserManager<Persona> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Personas
@@ -51,13 +55,58 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserName,Nombre,Apellido,Email,DireccionID,Telefono")] Persona persona)
+        public async Task<IActionResult> Create(bool EsAdmin, [Bind("Id,UserName,Nombre,Apellido,Email,DireccionID,Telefono")] Persona persona)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(persona);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //_context.Add(persona);
+                //await _context.SaveChangesAsync();
+
+
+                var resultadoNewPersona = await _userManager.CreateAsync(persona, Confings.PasswordGenerica);
+                if (resultadoNewPersona.Succeeded)
+                {
+                    IdentityResult resultadoAddRole;
+                    string RolDefinido;
+                    //agregamos el rol correspondiente
+                    if (EsAdmin)
+                    {
+                        //agrego el rol de administrador
+                        RolDefinido = Confings.AdminRole;
+
+                    }
+                    else
+                    {
+
+                        //agrego el rol de usuario normal
+
+                        RolDefinido = Confings.MiembroRole;
+
+                    }
+
+                    resultadoAddRole = await _userManager.AddToRoleAsync(persona, RolDefinido);
+
+                    if (resultadoAddRole.Succeeded)
+                    {
+                        //todo ok, redirigimos a la lista de personas
+                        _context.Add(persona);
+                        await _context.SaveChangesAsync();
+
+                    }
+                    else
+                    {
+                        return Content($"Error al agregar el rol {RolDefinido} a la persona {persona.UserName}");
+                    }
+
+                }
+
+
+                // procesamos los errores si es que hubo
+                foreach (var error in resultadoNewPersona.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
             }
             return View(persona);
         }

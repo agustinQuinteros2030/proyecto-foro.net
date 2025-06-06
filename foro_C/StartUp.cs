@@ -1,6 +1,5 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
-using foro_C.Models.helperPrecarga;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +46,7 @@ namespace foro_C
 
             #region Configuración de Identity
 
-            builder.Services.AddIdentity<Persona, IdentityRole<int>>().AddEntityFrameworkStores<ForoContext>();
+            builder.Services.AddIdentity<Persona, Rol>().AddEntityFrameworkStores<ForoContext>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
@@ -72,7 +71,6 @@ namespace foro_C
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ForoContext>();
-                Precarga.EnviarPrecarga(context); // ✅ Aquí llamás a la precarga
             }
 
             // Middleware HTTP
