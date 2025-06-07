@@ -4,6 +4,7 @@ using foro_C.ViewsModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
@@ -13,10 +14,13 @@ namespace foro_C.Controllers
 
         private readonly UserManager<Persona> _usermanager;
         private readonly SignInManager<Persona> _signInManager;
-        public AccountController(UserManager<Persona> usermanager, SignInManager<Persona> signInManager)
+        private readonly RoleManager<Rol> _roleManager;
+
+        public AccountController(UserManager<Persona> usermanager, SignInManager<Persona> signInManager,RoleManager<Rol>roleManager)
         {
             _usermanager = usermanager;
             _signInManager = signInManager;
+            this._roleManager = roleManager;
         }
 
         public IActionResult Registrar()
@@ -35,7 +39,7 @@ namespace foro_C.Controllers
 
                 if (emailExists)
                 {
-                    ModelState.AddModelError("Email", "El email ya está registrado.");
+                    ModelState.AddModelError("Email", "El email ya estï¿½ registrado.");
                     return View(viewModel);
                 }
 
@@ -58,7 +62,7 @@ namespace foro_C.Controllers
                     {
 
                         await _signInManager.SignInAsync(miembroACrear, isPersistent: false);
-                        return RedirectToAction("Edit", "Miembros", new { id = miembroACrear.Id }); // Redirigir a la página de inicio o a donde desees
+                        return RedirectToAction("Edit", "Miembros", new { id = miembroACrear.Id }); // Redirigir a la pï¿½gina de inicio o a donde desees
                     }
                     else
                     {
@@ -112,6 +116,13 @@ namespace foro_C.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+
+        public async Task<IActionResult> listarRoles()
+        {
+            var roles = _roleManager.Roles.ToList();
+            return View(roles);
         }
 
 

@@ -1,5 +1,6 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +61,12 @@ namespace foro_C
 
             builder.Services.AddControllersWithViews();
 
+            builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, opciones =>
+            {
+                opciones.LoginPath = "/Account/IniciarSesion";
+                opciones.AccessDeniedPath = "/Account/AccesoDenegado";
+                opciones.Cookie.Name = "IdentidadForoApp";
+            });
         }
 
         private static void Configure(WebApplication app)
