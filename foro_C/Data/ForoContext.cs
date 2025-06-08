@@ -61,7 +61,7 @@ namespace foro_C.Data
         public DbSet<Reaccion> Reacciones { get; set; }
         public DbSet<Habilitacion> Habilitaciones { get; set; }
 
-        public DbSet<foro_C.Models.Persona> Persona { get; set; }
+        public DbSet<foro_C.Models.Persona> Personas { get; set; }
         public DbSet<Interaccion> Interaccion { get; set; }
 
         public DbSet<Rol> Roles { get; set; }

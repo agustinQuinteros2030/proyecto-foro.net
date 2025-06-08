@@ -1,5 +1,6 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
+    [Authorize(Roles = "Administrador,Miembro")]
     public class PreguntasController : Controller
     {
         private readonly ForoContext _context;
@@ -18,6 +20,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Preguntas
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var foroContext = _context.Preguntas.Include(p => p.Entrada).Include(p => p.Miembro);
@@ -25,6 +28,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Preguntas/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -126,6 +130,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Preguntas/Delete/5
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -148,6 +153,7 @@ namespace foro_C.Controllers
         // POST: Preguntas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var pregunta = await _context.Preguntas.FindAsync(id);

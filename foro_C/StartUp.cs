@@ -78,6 +78,12 @@ namespace foro_C
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ForoContext>();
+
+                if (context.Database.IsSqlServer())
+                {
+                    context.Database.Migrate();
+                }
+                   
             }
 
             // Middleware HTTP

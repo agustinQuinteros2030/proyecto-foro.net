@@ -1,5 +1,6 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     public class HabilitacionesController : Controller
+
     {
         private readonly ForoContext _context;
 

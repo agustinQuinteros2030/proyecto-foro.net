@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrador")]
     public class EmpleadosController : Controller
     {
         private readonly ForoContext _context;
