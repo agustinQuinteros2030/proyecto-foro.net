@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
-    //  [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador")]
     public class MiembrosController : Controller
-
+        
     {
         private readonly ForoContext _context;
 
@@ -20,14 +20,14 @@ namespace foro_C.Controllers
         }
 
         // GET: Miembros
-        // [Authorize(Roles = "Administrador,Miembro")]
+        [Authorize(Roles = "Administrador,Miembro")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Miembros.ToListAsync());
         }
 
         // GET: Miembros/Details/5
-        // [Authorize(Roles = "Administrador,Miembro")]
+        [Authorize(Roles = "Administrador,Miembro")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,7 +46,6 @@ namespace foro_C.Controllers
         }
 
         // GET: Miembros/Create
-        [AllowAnonymous]
         public IActionResult Create()
         {
             return View();
@@ -57,7 +56,6 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AllowAnonymous]
         public async Task<IActionResult> Create([Bind("Id,UserName,Nombre,Apellido,Email,Telefono")] Miembro miembro)
         {
 
@@ -71,7 +69,6 @@ namespace foro_C.Controllers
         }
 
         // GET: Miembros/Edit/5
-        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -178,7 +175,6 @@ namespace foro_C.Controllers
         }
 
         // GET: Miembros/Delete/5
-        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
