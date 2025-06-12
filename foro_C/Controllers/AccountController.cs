@@ -1,9 +1,14 @@
+using foro_C.Data;
 using foro_C.Helpers;
 using foro_C.Models;
 using foro_C.ViewsModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
@@ -13,18 +18,27 @@ namespace foro_C.Controllers
 
         private readonly UserManager<Persona> _usermanager;
         private readonly SignInManager<Persona> _signInManager;
-        public AccountController(UserManager<Persona> usermanager, SignInManager<Persona> signInManager)
+        private readonly RoleManager<Rol> _roleManager;
+        private readonly ForoContext _contexto;
+
+        public AccountController(UserManager<Persona> usermanager,
+            SignInManager<Persona> signInManager,
+            RoleManager<Rol> roleManager,
+            ForoContext _contexto)
         {
             _usermanager = usermanager;
             _signInManager = signInManager;
-        }
+            _roleManager = roleManager;
 
+        }
+        [AllowAnonymous]
         public IActionResult Registrar()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Registrar([Bind("Nombre,Apellido,UserName,Email,Password,ConfirmPassword,Telefono")] RegistroUsuario viewModel)
         {
             if (ModelState.IsValid)
@@ -35,7 +49,7 @@ namespace foro_C.Controllers
 
                 if (emailExists)
                 {
-                    ModelState.AddModelError("Email", "El email ya está registrado.");
+                    ModelState.AddModelError("Email", "El email ya esta registrado.");
                     return View(viewModel);
                 }
 
@@ -58,7 +72,7 @@ namespace foro_C.Controllers
                     {
 
                         await _signInManager.SignInAsync(miembroACrear, isPersistent: false);
-                        return RedirectToAction("Edit", "Miembros", new { id = miembroACrear.Id }); // Redirigir a la página de inicio o a donde desees
+                        return RedirectToAction("Index", "Home"); // Redirigir a la pï¿½gina de inicio o a donde desees
                     }
                     else
                     {
@@ -79,18 +93,27 @@ namespace foro_C.Controllers
             return View(viewModel);
         }
 
-
-        public IActionResult IniciarSesion()
+        [AllowAnonymous]
+        public IActionResult IniciarSesion(string returnUrl)
         {
+
+            TempData["Url3"] = returnUrl;
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> IniciarSesion(IniciarSesion viewModel)
         {
+
+            string returnUrl = TempData["Url3"] as string;
+
             if (ModelState.IsValid)
             {
-
+                if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
                 var resultado = await _signInManager.PasswordSignInAsync(viewModel.UserName, viewModel.Password, viewModel.Recordarme, false);
 
                 if (resultado.Succeeded)
@@ -107,13 +130,44 @@ namespace foro_C.Controllers
             }
             return View(viewModel);
         }
-
+        [Authorize]
         public async Task<IActionResult> CerrarSesion()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> listarRoles()
+        {
+            var roles = _roleManager.Roles.ToList();
+            return View(roles);
+        }
+
+        public IActionResult AccesoDenegado(string returnUrl)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
+
+        public IActionResult TestCurrentUser()
+        {
+            if (_signInManager.IsSignedIn(User))
+            {
+                string nombreUsuario = User.Identity.Name;
+
+                Persona persona = _contexto.Personas
+                    .FirstOrDefault(p => p.NormalizedUserName == nombreUsuario.ToUpper());
+
+                int personald = Int32.Parse(_usermanager.GetUserId(User));
+                int personald2 = Int32.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                var personaId3 = User.Claims
+                    .FirstOrDefault(c => c.Type == "http://schemas.mlsoap.org/us/2005/05/identity/claims/nameidentifier");
+            }
+
+            return null;
+        }
 
     }
 }

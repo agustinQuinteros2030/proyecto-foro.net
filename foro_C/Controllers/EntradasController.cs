@@ -1,5 +1,6 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Entradas
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var foroContext = _context.Entradas.Include(e => e.Categoria).Include(e => e.Miembro);
@@ -25,6 +27,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Entradas/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,6 +48,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Entradas/Create
+        [Authorize(Roles = "Miembro")]
         public IActionResult Create()
         {
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre");
@@ -57,6 +61,7 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Miembro")]
         public async Task<IActionResult> Create([Bind("Id,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
         {
             if (ModelState.IsValid)
@@ -75,6 +80,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Entradas/Edit/5
+        [Authorize(Roles = "Miembro")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -97,6 +103,8 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Miembro")]
+
         public async Task<IActionResult> Edit(int id, [Bind("Id,Fecha,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
         {
             if (id != entrada.Id)
@@ -130,6 +138,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Entradas/Delete/5
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -152,6 +161,7 @@ namespace foro_C.Controllers
         // POST: Entradas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var entrada = await _context.Entradas.FindAsync(id);

@@ -1,4 +1,5 @@
 ﻿using foro_C.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -16,10 +17,12 @@ namespace foro_C.Controllers
         }
 
         // GET: Interaccions
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Interaccion.ToListAsync());
         }
+        [AllowAnonymous]
 
         // GET: Interaccions/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -40,6 +43,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Interaccions/Create
+        [Authorize(Roles = "Miembro")]
         public IActionResult Create()
         {
             return View();
@@ -62,6 +66,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Interaccions/Edit/5
+        [Authorize(Roles = "Miembro")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -82,6 +87,7 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Miembro")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Fecha,Texto,MiembroId")] Interaccion interaccion)
         {
             if (id != interaccion.Id)
@@ -113,6 +119,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Interaccions/Delete/5
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,6 +140,7 @@ namespace foro_C.Controllers
         // POST: Interaccions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var interaccion = await _context.Interaccion.FindAsync(id);

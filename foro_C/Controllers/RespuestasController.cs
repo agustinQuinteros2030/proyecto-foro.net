@@ -1,5 +1,6 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Respuestas
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var foroContext = _context.Respuestas.Include(r => r.Miembro).Include(r => r.Pregunta);
@@ -25,6 +27,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Respuestas/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -57,6 +60,7 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Miembro,Administrador")]
         public async Task<IActionResult> Create([Bind("PreguntaId,Id,Texto,MiembroId")] Respuesta respuesta)
         {
             if (ModelState.IsValid)
@@ -71,7 +75,9 @@ namespace foro_C.Controllers
         }
 
         // GET: Respuestas/Edit/5
+        [Authorize(Roles = "Miembro,Administrador")]
         public async Task<IActionResult> Edit(int? id)
+
         {
             if (id == null)
             {
@@ -93,6 +99,7 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Miembro,Administrador")]
         public async Task<IActionResult> Edit(int id, [Bind("PreguntaId,Id,Fecha,Texto,MiembroId")] Respuesta respuesta)
         {
             if (id != respuesta.Id)
@@ -126,6 +133,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Respuestas/Delete/5
+        [Authorize(Roles = "Miembro,Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -148,6 +156,8 @@ namespace foro_C.Controllers
         // POST: Respuestas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Miembro,Administrador")]
+
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var respuesta = await _context.Respuestas.FindAsync(id);

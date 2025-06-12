@@ -1,5 +1,6 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     public class EmpleadosController : Controller
     {
         private readonly ForoContext _context;
@@ -114,6 +116,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Empleados/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
