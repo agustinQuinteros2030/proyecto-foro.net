@@ -1,5 +1,6 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+using foro_C.Models.helperPrecarga;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Threading.Tasks;
 
 namespace foro_C
 {
@@ -20,7 +22,7 @@ namespace foro_C
 
             ConfiguresServices(builder);//lo configuramos con sus servicios 
             var app = builder.Build();//despues configuramos los middelware 
-            Configure(app);
+            ConfigureAsync(app);
 
 
             return app;
@@ -69,7 +71,7 @@ namespace foro_C
             });
         }
 
-        private static void Configure(WebApplication app)
+        private static async Task ConfigureAsync(WebApplication app)
         {
 
 
@@ -78,6 +80,12 @@ namespace foro_C
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ForoContext>();
+
+                var userManager = services.GetRequiredService<UserManager<Persona>>();
+                var roleManager = services.GetRequiredService<RoleManager<Rol>>();
+                await PrecargaInMemory.EnviarPrecargaAsync(context, roleManager, userManager);
+
+
 
                 if (context.Database.IsSqlServer())
                 {
