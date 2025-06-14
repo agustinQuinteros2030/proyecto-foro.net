@@ -41,6 +41,7 @@
         <div class="form-group">
             <label asp-for="ConfirmPassword"> Confirmar Contrase�a</label>
             <input asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"> las contraseñas no coinciden</span>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         </div>
         <div class="form-group">
