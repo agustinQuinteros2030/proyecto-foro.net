@@ -1,4 +1,4 @@
-﻿using foro_C.HelpersDataAnotattions;
+﻿using foro_C.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace foro_C.ViewsModels
@@ -7,7 +7,7 @@ namespace foro_C.ViewsModels
     public class IniciarSesion
     {
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [Display(Name = "UserName")]
+        [Display(Name = "UserName o Email")]
         public string UserName { get; set; }
 
         [Required(ErrorMessage = ErrorMsgs.Requerido)]

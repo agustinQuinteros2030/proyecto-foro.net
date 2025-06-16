@@ -1,4 +1,4 @@
-using foro_C.HelpersDataAnotattions;
+using foro_C.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace foro_C.ViewsModels

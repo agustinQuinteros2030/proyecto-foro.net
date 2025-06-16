@@ -30,6 +30,7 @@ namespace foro_C.Controllers
             _signInManager = signInManager;
             _roleManager = roleManager;
 
+
         }
         [AllowAnonymous]
         public IActionResult Registrar()
@@ -105,31 +106,33 @@ namespace foro_C.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> IniciarSesion(IniciarSesion viewModel)
         {
-
             string returnUrl = TempData["Url3"] as string;
 
             if (ModelState.IsValid)
             {
-                if (!string.IsNullOrEmpty(returnUrl))
-                {
-                    return Redirect(returnUrl);
-                }
-                var resultado = await _signInManager.PasswordSignInAsync(viewModel.UserName, viewModel.Password, viewModel.Recordarme, false);
+                // Buscar al usuario por nombre de usuario o email
+                Persona persona = await _usermanager.Users
+                    .FirstOrDefaultAsync(p => p.UserName == viewModel.UserName || p.Email == viewModel.UserName);
 
-                if (resultado.Succeeded)
+                if (persona != null)
                 {
+                    var resultado = await _signInManager.PasswordSignInAsync(persona.UserName, viewModel.Password, viewModel.Recordarme, lockoutOnFailure: false);
 
-                    // Si el inicio de sesion es exitoso
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Intento de inicio de sesion no valido. Por favor, verifique sus credenciales.");
+                    if (resultado.Succeeded)
+                    {
+                        return !string.IsNullOrEmpty(returnUrl)
+                            ? Redirect(returnUrl)
+                            : RedirectToAction("Index", "Home");
+                    }
                 }
 
+                ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido. Verificá usuario/email y contraseña.");
             }
+
             return View(viewModel);
         }
+
+
         [Authorize]
         public async Task<IActionResult> CerrarSesion()
         {

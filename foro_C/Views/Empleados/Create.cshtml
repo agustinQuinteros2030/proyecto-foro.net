@@ -18,11 +18,6 @@
                 <span asp-validation-for="Legajo" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="Nombre" class="control-label"></label>
                 <input asp-for="Nombre" class="form-control" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
@@ -32,12 +27,17 @@
                 <input asp-for="Apellido" class="form-control" />
                 <span asp-validation-for="Apellido" class="text-danger"></span>
             </div>
-          
+
             <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
+                <label for="UserPart">Email</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="UserPart" name="UserPart"  />
+                    <div class="input-group-append">
+                        <span class="input-group-text">&#64;ort.edu.ar</span>
+                    </div>
+                </div>
                 <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+                </div>
             
             <div class="form-group">
                 <label asp-for="Telefono" class="control-label"></label>

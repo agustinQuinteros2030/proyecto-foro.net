@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace foro_C
@@ -17,6 +18,10 @@ namespace foro_C
         {
             //creamos instancia de nuestro servidor web
             var builder = WebApplication.CreateBuilder(args);
+            // Agregar configuración de logging para consola
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+
 
             ConfiguresServices(builder);//lo configuramos con sus servicios 
             var app = builder.Build();//despues configuramos los middelware 
@@ -45,6 +50,7 @@ namespace foro_C
                 });
             }
 
+
             #region Configuración de Identity
 
             builder.Services.AddIdentity<Persona, Rol>().AddEntityFrameworkStores<ForoContext>();
@@ -60,6 +66,8 @@ namespace foro_C
             #endregion
 
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddTransient<foro_C.Controllers.Precarga1>();
 
             builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, opciones =>
             {
@@ -83,7 +91,11 @@ namespace foro_C
                 {
                     context.Database.Migrate();
                 }
-                   
+
+                // Precarga de datos
+                var precarga = services.GetRequiredService<foro_C.Controllers.Precarga1>();
+                precarga.InicializarDatosAsync().GetAwaiter().GetResult();
+
             }
 
             // Middleware HTTP

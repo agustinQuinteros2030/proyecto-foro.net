@@ -1,4 +1,4 @@
-﻿using foro_C.HelpersDataAnotattions;
+﻿using foro_C.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,10 +10,10 @@ namespace foro_C.Models
         public int Id { get; set; }
         public DateTime Fecha { get; set; } = DateTime.Now;
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [StringLength(100, MinimumLength = 10, ErrorMessage = ErrorMsgs.longitudValida)]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = ErrorMsgs.longitudValida)]
         public String Titulo { get; set; }
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [StringLength(1000, MinimumLength = 10, ErrorMessage = ErrorMsgs.longitudValida)]
+        [StringLength(1000, MinimumLength = 1, ErrorMessage = ErrorMsgs.longitudValida)]
         public String Texto { get; set; }
 
         [Required]

@@ -1,6 +1,8 @@
 ﻿using foro_C.Data;
+using foro_C.Helpers;
 using foro_C.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -12,10 +14,16 @@ namespace foro_C.Controllers
     public class EmpleadosController : Controller
     {
         private readonly ForoContext _context;
+        private readonly UserManager<Persona> _userManager;
 
-        public EmpleadosController(ForoContext context)
+
+
+        public EmpleadosController(ForoContext context, UserManager<Persona> userManager)
         {
             _context = context;
+            _userManager = userManager;
+
+
         }
 
         // GET: Empleados
@@ -53,16 +61,41 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Legajo,Id,UserName,Nombre,Apellido,Email,DireccionID,Telefono")] Empleado empleado)
+        public async Task<IActionResult> Create(string UserPart, [Bind("Legajo,Id,UserName,Nombre,Apellido,Email,DireccionID,Telefono")] Empleado empleado)
+
         {
-            if (ModelState.IsValid)
+            // Desactivamos validación automática
+            ModelState.Clear();
+
+            // Armamos Email y Username
+            empleado.Email = $"{UserPart}@ort.edu.ar";
+            empleado.UserName = empleado.Email;
+
+            // Validación manual
+            TryValidateModel(empleado);
+
+            if (!ModelState.IsValid)
             {
-                _context.Add(empleado);
-                await _context.SaveChangesAsync();
+                return View(empleado);
+            }
+
+            // Crear usuario con contraseña genérica
+            var resultado = await _userManager.CreateAsync(empleado, Confings.PasswordGenerica);
+
+            if (resultado.Succeeded)
+            {
                 return RedirectToAction(nameof(Index));
             }
+
+            // Si falla, mostrar errores
+            foreach (var error in resultado.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
             return View(empleado);
         }
+
 
         // GET: Empleados/Edit/5
         public async Task<IActionResult> Edit(int? id)

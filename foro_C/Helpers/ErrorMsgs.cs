@@ -1,4 +1,4 @@
-﻿namespace foro_C.HelpersDataAnotattions
+﻿namespace foro_C.Helpers
 {
     public static class ErrorMsgs
     {

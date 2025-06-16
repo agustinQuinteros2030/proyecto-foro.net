@@ -1,4 +1,4 @@
-using foro_C.HelpersDataAnotattions;
+using foro_C.Helpers;
 using foro_C.Models;
 using System;
 using System.ComponentModel.DataAnnotations;

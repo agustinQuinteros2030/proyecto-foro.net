@@ -1,7 +1,10 @@
 ﻿using foro_C.Data;
+using foro_C.Helpers;
 using foro_C.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,36 +17,62 @@ namespace foro_C.Controllers
         private readonly UserManager<Persona> _usermanager;
         private readonly RoleManager<Rol> _roleManager;
         private readonly ForoContext _context;
+        private readonly ILogger<Precarga1> _logger;
 
-        private readonly List<string> _roles = new List<string>
+        private readonly List<string> _roles = new()
         {
-            "Administrador",
-            "Miembro",
-            "Empleado"
+            Confings.AdminRole,
+            Confings.MiembroRole
+
         };
-        public Precarga1(UserManager<Persona> userManager, RoleManager<Rol> roleManager, ForoContext context)
+        public Precarga1(UserManager<Persona> userManager, RoleManager<Rol> roleManager, ForoContext context, ILogger<Precarga1> logger)
         {
 
             _usermanager = userManager;
             _roleManager = roleManager;
             _context = context;
+            _logger = logger;
 
         }
-
-        public IActionResult Seed()
+        // Action method for the route
+        public async Task<IActionResult> Index()
         {
-
-            CrearRoles().Wait();
-            CrearAdmin().Wait();
-            CrearEmpleados().Wait();
-            CrearMiembros().Wait();
-            CrearCategorias().Wait();
-            CrearEntradas().Wait();
-            CrearPreguntas().Wait();
-            CrearRespuestas().Wait();
-            CrearReacciones().Wait();
-            return RedirectToAction("Index", "Home");
+            await InicializarDatosAsync();
+            return RedirectToAction("Home", "Index");
         }
+
+        public async Task InicializarDatosAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Iniciando carga de datos iniciales...");
+
+                if (await _context.Roles.AnyAsync())
+                {
+                    _logger.LogInformation("Los datos ya están cargados. Saltando precarga.");
+                    return;
+                }
+
+                await CrearRoles();
+                await CrearAdmin();
+                await CrearMiembros();
+                await CrearCategorias();
+                await CrearEntradas();
+                await CrearPreguntas();
+                await CrearRespuestas();
+                await CrearReacciones();
+
+                _logger.LogInformation("Carga de datos iniciales completada exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error durante la carga de datos iniciales");
+                throw;
+            }
+        }
+
+
+
 
         private async Task CrearRoles()
         {
@@ -60,62 +89,71 @@ namespace foro_C.Controllers
 
         private async Task CrearAdmin()
         {
-
-            // Usuario Luciana
-            var lucianaUser = await _usermanager.FindByNameAsync("luciana.admin");
-            if (lucianaUser == null)
+            // First Admin User
+            var admin1User = await _usermanager.FindByNameAsync("empleado1");
+            if (admin1User == null)
             {
-                var luciana = new Empleado
+                var empleado1 = new Empleado
                 {
-                    UserName = "luciana.admin",
-                    Nombre = "Luciana",
-                    Apellido = "Admin",
-                    Email = "luciana.admin@foro.com",
+                    Legajo = "01EP01",
+                    UserName = "empleado1",
+                    Nombre = "Empleado",
+                    Apellido = "Uno",
+                    Email = "empleado1@ort.edu.ar",
                     FechaAlta = DateTime.Now,
                     Telefono = 12345679
                 };
-                var result = await _usermanager.CreateAsync(luciana, "Password1!");
+                var result = await _usermanager.CreateAsync(empleado1, Confings.PasswordGenerica);
                 if (result.Succeeded)
                 {
-                    await _usermanager.AddToRoleAsync(luciana, "Administrador");
+                    await _usermanager.AddToRoleAsync(empleado1, Confings.AdminRole);
                 }
             }
 
-            // Usuario Agustin
-            var agustinUser = await _usermanager.FindByNameAsync("agustin.admin");
-            if (agustinUser == null)
+            // Second Admin User
+            var admin2User = await _usermanager.FindByNameAsync("empleadorrhh1");
+            if (admin2User == null)
             {
-                var agustin = new Empleado
+                var empleadorrhh1 = new Empleado
                 {
-                    UserName = "agustin.admin",
-                    Nombre = "Agustin",
-                    Apellido = "Admin",
-                    Email = "agustin.admin@foro.com",
+                    Legajo = "01EP02",
+                    UserName = "empleadorrhh1",
+                    Nombre = "Empleado",
+                    Apellido = "RRHH",
+                    Email = "empleadorrhh1@ort.edu.ar",
                     FechaAlta = DateTime.Now,
                     Telefono = 12345680
                 };
-                var result = await _usermanager.CreateAsync(agustin, "Password1!");
+                var result = await _usermanager.CreateAsync(empleadorrhh1, Confings.PasswordGenerica);
                 if (result.Succeeded)
                 {
-                    await _usermanager.AddToRoleAsync(agustin, "Administrador");
+                    await _usermanager.AddToRoleAsync(empleadorrhh1, Confings.AdminRole);
                 }
             }
+
+            var admin3User = await _usermanager.FindByNameAsync("empleado2");
+            if (admin3User == null)
+            {
+                var empleado3 = new Empleado
+                {
+                    Legajo = "01EP03",
+                    UserName = "empleado2",
+                    Nombre = "Empleado",
+                    Apellido = "Uno",
+                    Email = "empleado2@ort.edu.ar",
+                    FechaAlta = DateTime.Now,
+                    Telefono = 12345679
+                };
+                var result = await _usermanager.CreateAsync(empleado3, Confings.PasswordGenerica);
+                if (result.Succeeded)
+                {
+                    await _usermanager.AddToRoleAsync(empleado3, Confings.AdminRole);
+                }
+            }
+
+
         }
 
-        private async Task CrearEmpleados()
-        {
-            if (!_context.Empleados.Any())
-            {
-                var empleados = new List<Empleado>
-                {
-                    new() { UserName = "c.gimenez", Nombre = "Carlos", Apellido = "Giménez", Email = "carlos@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 11111111, Legajo = "E001A" },
-                    new() { UserName = "l.ramos", Nombre = "Laura", Apellido = "Ramos", Email = "laura@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 22222222, Legajo = "E002B" },
-                    new() { UserName = "t.lopez", Nombre = "Tomás", Apellido = "López", Email = "tomas@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 33333333, Legajo = "E003C" }
-                };
-                _context.Empleados.AddRange(empleados);
-                await _context.SaveChangesAsync();
-            }
-        }
 
         private async Task CrearMiembros()
         {
@@ -134,7 +172,14 @@ namespace foro_C.Controllers
                     new() { UserName = "plant.kate", Nombre = "Katherine", Apellido = "Flores", Email = "kate@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 90909090 },
                     new() { UserName = "trip.ivan", Nombre = "Iván", Apellido = "Delgado", Email = "ivan@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 11112222 }
                 };
-                _context.Miembros.AddRange(miembros);
+                foreach (var miembro in miembros)
+                {
+                    var result = await _usermanager.CreateAsync(miembro, Confings.PasswordGenerica);
+                    if (result.Succeeded)
+                    {
+                        await _usermanager.AddToRoleAsync(miembro, Confings.MiembroRole);
+                    }
+                }
                 await _context.SaveChangesAsync();
             }
         }

@@ -1,4 +1,4 @@
-﻿using foro_C.HelpersDataAnotattions;
+﻿using foro_C.Helpers;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.ComponentModel.DataAnnotations;
