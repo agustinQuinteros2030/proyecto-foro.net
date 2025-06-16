@@ -1,5 +1,5 @@
 ﻿using foro_C.Helpers;
-using foro_C.HelpersDataAnotattions;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
