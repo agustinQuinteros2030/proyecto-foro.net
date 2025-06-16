@@ -10,8 +10,8 @@ namespace foro_C.Data
     public static class Precarga
     {
         public static  async Task EnviarPrecargaAsync(
-        ForoContext context,
-        RoleManager<Rol> roleManager,
+       ForoContext context,
+      RoleManager<Rol> roleManager,
         UserManager<Persona> userManager)
         {
             {

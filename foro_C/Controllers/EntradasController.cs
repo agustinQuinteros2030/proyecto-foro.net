@@ -22,8 +22,34 @@ namespace foro_C.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var foroContext = _context.Entradas.Include(e => e.Categoria).Include(e => e.Miembro);
-            return View(await foroContext.ToListAsync());
+            var cards = await _context.Entradas
+         .Include(e => e.Categoria)
+         .Include(e => e.Miembro)
+         .Include(e => e.Preguntas)
+             .ThenInclude(p => p.Respuestas)
+                 .ThenInclude(r => r.Reacciones)
+         .OrderByDescending(e => e.Fecha)
+         .Take(20) // ó las que quieras
+         .Select(e => new Entrada
+         {
+             Id = e.Id,
+             Titulo = e.Titulo,
+             Categoria = e.Categoria.Nombre,
+             Autor = $"{e.Miembro.Nombre} {e.Miembro.Apellido}",
+             Fecha = e.Fecha,
+             ResumenPregunta = e.Preguntas.FirstOrDefault().Texto,
+             TotalRespuestas = e.Preguntas.Sum(p => p.Respuestas.Count),
+             Likes = e.Preguntas
+                         .SelectMany(p => p.Respuestas)
+                         .Sum(r => r.Reacciones.Count(x => x.MeGusta)),
+             Dislikes = e.Preguntas
+                         .SelectMany(p => p.Respuestas)
+                         .Sum(r => r.Reacciones.Count(x => !x.MeGusta)),
+             Privada = e.Privada
+         })
+         .ToListAsync();
+
+            return View(cards);
         }
 
         // GET: Entradas/Details/5

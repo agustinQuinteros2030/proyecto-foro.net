@@ -1,22 +1,29 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador,Miembro")]
     public class MiembrosController : Controller
-        
+       
+
     {
         private readonly ForoContext _context;
+        private readonly RoleManager<Rol> roleManager;
+        private readonly UserManager<Persona> userManager;
 
-        public MiembrosController(ForoContext context)
+        public MiembrosController(ForoContext context, UserManager<Persona> userManager, RoleManager<Rol> roleManager)
         {
             _context = context;
+            this.userManager = userManager;
+            this.roleManager = roleManager;
         }
 
         // GET: Miembros
@@ -69,19 +76,25 @@ namespace foro_C.Controllers
         }
 
         // GET: Miembros/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
             {
-                return NotFound();
-            }
+                if (id == null) return NotFound();
 
-            var miembro = await _context.Miembros.FindAsync(id);
-            if (miembro == null)
-            {
-                return NotFound();
+                var usuarioLogueadoId = userManager.GetUserId(User); // id string
+                var miembro = await _context.Miembros.FindAsync(id);
+
+                if (miembro == null) return NotFound();
+
+                // Validamos que el usuario logueado sea el dueño del perfil
+                if (miembro.Id.ToString() != usuarioLogueadoId )
+                {
+                    return RedirectToAction("AccesoDenegado", "Account");
+                }
+
+                return View(miembro);
             }
-            return View(miembro);
         }
 
         // POST: Miembros/Edit/5
@@ -90,53 +103,63 @@ namespace foro_C.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Nombre,Apellido,FechaAlta,Email,DireccionID,Telefono")] Miembro miembroFormulario)
-        {
-            if (id != miembroFormulario.Id)
+
+        { if (id != miembroFormulario.Id) return NotFound();
+
+        var usuarioLogueadoId = userManager.GetUserId(User);
+
+    if (miembroFormulario.Id.ToString() != usuarioLogueadoId && !User.IsInRole("Administrador"))
+    {
+        return RedirectToAction("AccesoDenegado", "Account");
+    }
             {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
+                if (id != miembroFormulario.Id)
                 {
-                    var miembroEnDb = await _context.Miembros.FindAsync(id);
-
-                    if (miembroEnDb == null)
-                    {
-                        return NotFound();
-                    }
-                    miembroEnDb.Id = miembroFormulario.Id;
-                    miembroEnDb.UserName = miembroFormulario.UserName;
-                    miembroEnDb.Nombre = miembroFormulario.Nombre;
-                    miembroEnDb.Apellido = miembroFormulario.Apellido;
-                    miembroEnDb.Telefono = miembroFormulario.Telefono;
-
-                    if (!ActualizarEmail(miembroFormulario, miembroEnDb))
-                    {
-                        ModelState.AddModelError("Email", "El email ya está en uso por otro usuario.");
-                        return View(miembroFormulario);
-                    }
-
-                    _context.Update(miembroEnDb);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                if (ModelState.IsValid)
                 {
-                    if (!MiembroExists(miembroFormulario.Id))
+                    try
                     {
-                        return NotFound();
+                        var miembroEnDb = await _context.Miembros.FindAsync(id);
+
+                        if (miembroEnDb == null)
+                        {
+                            return NotFound();
+                        }
+                        miembroEnDb.Id = miembroFormulario.Id;
+                        miembroEnDb.UserName = miembroFormulario.UserName;
+                        miembroEnDb.Nombre = miembroFormulario.Nombre;
+                        miembroEnDb.Apellido = miembroFormulario.Apellido;
+                        miembroEnDb.Telefono = miembroFormulario.Telefono;
+
+                        if (!ActualizarEmail(miembroFormulario, miembroEnDb))
+                        {
+                            ModelState.AddModelError("Email", "El email ya está en uso por otro usuario.");
+                            return View(miembroFormulario);
+                        }
+
+                        _context.Update(miembroEnDb);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!MiembroExists(miembroFormulario.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
+                return View(miembroFormulario);
             }
-            return View(miembroFormulario);
         }
-
+        [Authorize]
         private bool ActualizarEmail(Miembro miembroFormulario, Miembro emailActual)
         {
             bool resultado = true;
@@ -175,41 +198,80 @@ namespace foro_C.Controllers
         }
 
         // GET: Miembros/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+           
+                if (id == null || id <= 0)
+                {
+                    return NotFound();
+                }
 
-            var miembro = await _context.Miembros
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (miembro == null)
-            {
-                return NotFound();
-            }
+                var miembro = await _context.Miembros.FirstOrDefaultAsync(m => m.Id == id);
+                if (miembro == null)
+                {
+                    return NotFound();
+                }
 
-            return View(miembro);
-        }
+                var usuarioLogueadoId = userManager.GetUserId(User); // string
+
+                // Validar que solo se pueda acceder si sos el dueño del perfil o un admin
+                if (miembro.Id.ToString() != usuarioLogueadoId && !User.IsInRole("Administrador"))
+                {
+                    return RedirectToAction("AccesoDenegado", "Account");
+                }
+
+                return View(miembro);
+            }
+        
 
         // POST: Miembros/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+
+            if (id <= 0) return NotFound();
+
+            var usuarioLogueadoId = userManager.GetUserId(User); 
             var miembro = await _context.Miembros.FindAsync(id);
-            if (miembro != null)
+
+            if (miembro == null) return NotFound();
+
+            // Validamos que el usuario logueado sea el dueño del perfil o admin
+            if (miembro.Id.ToString() != usuarioLogueadoId && !User.IsInRole("Administrador"))
             {
-                _context.Miembros.Remove(miembro);
+                return RedirectToAction("AccesoDenegado", "Account");
             }
 
+            _context.Miembros.Remove(miembro);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+
+
         }
 
         private bool MiembroExists(int id)
         {
             return _context.Miembros.Any(e => e.Id == id);
         }
+
+
+        [Authorize]
+        public async Task<IActionResult> MiPerfil()
+        {
+        
+           
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                var miembro = await _context.Miembros
+                    .FirstOrDefaultAsync(m => m.Id == userId);
+
+                if (miembro == null)
+                    return NotFound();
+
+                return View("MiPerfil", miembro);
+            }
     }
 }
