@@ -23,13 +23,13 @@ namespace foro_C.Controllers
 
         public AccountController(UserManager<Persona> usermanager,
             SignInManager<Persona> signInManager,
-            RoleManager<Rol>roleManager,
+            RoleManager<Rol> roleManager,
             ForoContext _contexto)
         {
             _usermanager = usermanager;
             _signInManager = signInManager;
             this._roleManager = roleManager;
-          
+
         }
         [AllowAnonymous]
         public IActionResult Registrar()
@@ -96,7 +96,7 @@ namespace foro_C.Controllers
         [AllowAnonymous]
         public IActionResult IniciarSesion(string returnUrl)
         {
-          
+
             TempData["Url3"] = returnUrl;
             return View();
         }
@@ -110,24 +110,26 @@ namespace foro_C.Controllers
             if (ModelState.IsValid)
             {
                 if (!string.IsNullOrEmpty(returnUrl))
-                    { 
+                {
                     return Redirect(returnUrl);
                 }
                 var resultado = await _signInManager.PasswordSignInAsync(viewModel.UserName, viewModel.Password, viewModel.Recordarme, false);
 
-                    if (resultado.Succeeded)
-                    {
-                        return !string.IsNullOrEmpty(returnUrl)
-                            ? Redirect(returnUrl)
-                            : RedirectToAction("Index", "Home");
-                    }
+                if (resultado.Succeeded)
+                {
+                    return !string.IsNullOrEmpty(returnUrl)
+                        ? Redirect(returnUrl)
+                        : RedirectToAction("Index", "Home");
                 }
-
-                ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido. Verificá usuario/email y contraseña.");
             }
 
+            ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido. Verificá usuario/email y contraseña.");
             return View(viewModel);
         }
+
+           
+    
+
 
 
         [Authorize]
