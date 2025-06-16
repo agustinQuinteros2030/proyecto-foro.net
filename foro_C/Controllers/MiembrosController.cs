@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador,Miembro")]
     public class MiembrosController : Controller
        
 
@@ -255,5 +256,22 @@ namespace foro_C.Controllers
         {
             return _context.Miembros.Any(e => e.Id == id);
         }
+
+
+        [Authorize]
+        public async Task<IActionResult> MiPerfil()
+        {
+        
+           
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                var miembro = await _context.Miembros
+                    .FirstOrDefaultAsync(m => m.Id == userId);
+
+                if (miembro == null)
+                    return NotFound();
+
+                return View("MiPerfil", miembro);
+            }
     }
 }
