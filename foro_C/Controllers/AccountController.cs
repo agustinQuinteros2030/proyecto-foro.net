@@ -23,14 +23,13 @@ namespace foro_C.Controllers
 
         public AccountController(UserManager<Persona> usermanager,
             SignInManager<Persona> signInManager,
-            RoleManager<Rol> roleManager,
+            RoleManager<Rol>roleManager,
             ForoContext _contexto)
         {
             _usermanager = usermanager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
-
-
+            this._roleManager = roleManager;
+          
         }
         [AllowAnonymous]
         public IActionResult Registrar()
@@ -50,7 +49,7 @@ namespace foro_C.Controllers
 
                 if (emailExists)
                 {
-                    ModelState.AddModelError("Email", "El email ya esta registrado.");
+                    ModelState.AddModelError("Email", "El email ya est� registrado.");
                     return View(viewModel);
                 }
 
@@ -73,7 +72,7 @@ namespace foro_C.Controllers
                     {
 
                         await _signInManager.SignInAsync(miembroACrear, isPersistent: false);
-                        return RedirectToAction("Index", "Home"); // Redirigir a la p�gina de inicio o a donde desees
+                        return RedirectToAction("Edit", "Miembros", new { id = miembroACrear.Id }); // Redirigir a la p�gina de inicio o a donde desees
                     }
                     else
                     {
@@ -97,7 +96,7 @@ namespace foro_C.Controllers
         [AllowAnonymous]
         public IActionResult IniciarSesion(string returnUrl)
         {
-
+          
             TempData["Url3"] = returnUrl;
             return View();
         }
@@ -110,13 +109,11 @@ namespace foro_C.Controllers
 
             if (ModelState.IsValid)
             {
-                // Buscar al usuario por nombre de usuario o email
-                Persona persona = await _usermanager.Users
-                    .FirstOrDefaultAsync(p => p.UserName == viewModel.UserName || p.Email == viewModel.UserName);
-
-                if (persona != null)
-                {
-                    var resultado = await _signInManager.PasswordSignInAsync(persona.UserName, viewModel.Password, viewModel.Recordarme, lockoutOnFailure: false);
+                if (!string.IsNullOrEmpty(returnUrl))
+                    { 
+                    return Redirect(returnUrl);
+                }
+                var resultado = await _signInManager.PasswordSignInAsync(viewModel.UserName, viewModel.Password, viewModel.Recordarme, false);
 
                     if (resultado.Succeeded)
                     {
@@ -149,7 +146,7 @@ namespace foro_C.Controllers
 
         public IActionResult AccesoDenegado(string returnUrl)
         {
-            ViewBag.ReturnUrl = returnUrl;
+           ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 

@@ -1,14 +1,17 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace foro_C
 {
@@ -25,7 +28,7 @@ namespace foro_C
 
             ConfiguresServices(builder);//lo configuramos con sus servicios 
             var app = builder.Build();//despues configuramos los middelware 
-            Configure(app);
+            ConfigureAsync(app);
 
 
             return app;
@@ -75,9 +78,11 @@ namespace foro_C
                 opciones.AccessDeniedPath = "/Account/AccesoDenegado";
                 opciones.Cookie.Name = "IdentidadForoApp";
             });
+
+          
         }
 
-        private static void Configure(WebApplication app)
+        private static async Task ConfigureAsync(WebApplication app)
         {
 
 
@@ -87,14 +92,18 @@ namespace foro_C
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ForoContext>();
 
+                var userManager = services.GetRequiredService<UserManager<Persona>>();
+                var roleManager = services.GetRequiredService<RoleManager<Rol>>();
+
                 if (context.Database.IsSqlServer())
                 {
                     context.Database.Migrate();
+                  
                 }
-
-                // Precarga de datos
-                var precarga = services.GetRequiredService<foro_C.Controllers.Precarga1>();
-                precarga.InicializarDatosAsync().GetAwaiter().GetResult();
+                else            // InMemory
+                {
+                    await Precarga.EnviarPrecargaAsync(context, roleManager, userManager);
+                }
 
             }
 

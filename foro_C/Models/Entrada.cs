@@ -9,33 +9,36 @@ namespace foro_C.Models
     {
         public int Id { get; set; }
         public DateTime Fecha { get; set; } = DateTime.Now;
+
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [StringLength(100, MinimumLength = 1, ErrorMessage = ErrorMsgs.longitudValida)]
-        public String Titulo { get; set; }
+        [StringLength(100, MinimumLength = 10, ErrorMessage = ErrorMsgs.longitudValida)]
+        public string Titulo { get; set; }
+
         [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        [StringLength(1000, MinimumLength = 1, ErrorMessage = ErrorMsgs.longitudValida)]
-        public String Texto { get; set; }
+        [StringLength(1000, MinimumLength = 10, ErrorMessage = ErrorMsgs.longitudValida)]
+        public string Texto { get; set; }
 
         [Required]
-        public Boolean Privada { get; set; } = true;
+        public bool Privada { get; set; } = true;
 
-        // Propiedad relacional
-        [Required(ErrorMessage = ErrorMsgs.Requerido)]
+        public bool Activa { get; set; } = true;
+
+        // Relaciones
+        [Required]
         public int CategoriaId { get; set; }
-        [Required(ErrorMessage = ErrorMsgs.Requerido)]
-        public int MiembroId { get; set; }
-
-        // Propiedad navegacional
-        [Required]
-        public Miembro Miembro { get; set; }
         public Categoria Categoria { get; set; }
+
+        [Required]
+        public int MiembroId { get; set; }
+        public Miembro Miembro { get; set; }
 
         public List<Pregunta> Preguntas { get; set; } = new();
         public List<Habilitacion> Habilitaciones { get; set; } = new();
-
-
-
     }
+
+
+
 }
+
 
 

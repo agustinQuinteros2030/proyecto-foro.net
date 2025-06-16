@@ -1,6 +1,7 @@
 ﻿using foro_C.Data;
 using foro_C.Helpers;
 using foro_C.Models;
+using Google.Apis.Admin.Directory.directory_v1.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -184,171 +185,92 @@ namespace foro_C.Controllers
             }
         }
 
-        private async Task CrearCategorias()
-        {
-            if (!_context.Categorias.Any())
-            {
-                var categorias = new List<Categoria>
+                // Crear Miembros
+                var miembroAgus = new Miembro { UserName = "iron.agus", Nombre = "Agustín", Apellido = "Quinteros", Email = "agus@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 10101010 };
+                var miembroAri = new Miembro { UserName = "gamer.ari", Nombre = "Ariel", Apellido = "Mendoza", Email = "ari@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 20202020 };
+                var miembroLu = new Miembro { UserName = "chef.lu", Nombre = "Lucía", Apellido = "Paz", Email = "lucia@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 30303030 };
+                var miembroRo = new Miembro { UserName = "dev.ro", Nombre = "Romina", Apellido = "Torres", Email = "romi@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 40404040 };
+                var miembroCaro = new Miembro { UserName = "pwr.caro", Nombre = "Carolina", Apellido = "Benítez", Email = "caro@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 80808080 };
+                var miembroManu = new Miembro { UserName = "anime.manu", Nombre = "Manuel", Apellido = "Saito", Email = "manu@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 60606060 };
+                var miembroKate = new Miembro { UserName = "plant.kate", Nombre = "Katherine", Apellido = "Flores", Email = "kate@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 90909090 };
+                var miembroIvan = new Miembro { UserName = "trip.ivan", Nombre = "Iván", Apellido = "Delgado", Email = "ivan@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 11112222 };
+                var miembroEma = new Miembro { UserName = "musica.ema", Nombre = "Emanuel", Apellido = "Pérez", Email = "ema@ort.edu.ar", FechaAlta = DateTime.Now, Telefono = 70707070 };
+
+                var miembros = new List<Miembro> {
+                miembroAgus, miembroAri, miembroLu, miembroRo, miembroCaro,
+                miembroManu, miembroKate, miembroIvan, miembroEma
+            };
+
+                foreach (var miembro in miembros)
                 {
-                    new() { Nombre = "Powerlifting" },
-                    new() { Nombre = "Videojuegos" },
-                    new() { Nombre = "Cocina" },
-                    new() { Nombre = "Programación" },
-                    new() { Nombre = "Viajes" },
-                    new() { Nombre = "Música" },
-                    new() { Nombre = "Anime" },
-                    new() { Nombre = "Jardinería" }
-                };
-                _context.Categorias.AddRange(categorias);
-                await _context.SaveChangesAsync();
-            }
-        }
+                    await userManager.CreateAsync(miembro, "Password1!");
+                    await userManager.AddToRoleAsync(miembro, "Miembro");
+                }
 
-        private async Task CrearEntradas()
-        {
-            if (!_context.Entradas.Any())
-            {
-                var categorias = _context.Categorias.ToList();
-                var miembros = _context.Miembros.ToList();
+                // Categorías
+                var categoriaPwr = new Categoria { Nombre = "Powerlifting" };
+                var categoriaGames = new Categoria { Nombre = "Videojuegos" };
+                var categoriaCocina = new Categoria { Nombre = "Cocina" };
+                context.Categorias.AddRange(categoriaPwr, categoriaGames, categoriaCocina);
+                await context.SaveChangesAsync();
 
+                // Entradas
                 var entrada1 = new Entrada
                 {
                     Titulo = "¿Cómo mejorar el press de banca?",
                     Texto = "Estoy estancado en mi 1RM de banca hace 3 meses. ¿Qué me recomiendan?",
                     Fecha = DateTime.Now,
                     Privada = false,
-                    Categoria = categorias.First(c => c.Nombre == "Powerlifting"),
-                    Miembro = miembros.First(m => m.UserName == "iron.agus")
+                    Categoria = categoriaPwr,
+                    Miembro = miembroAgus
                 };
-
                 var entrada2 = new Entrada
                 {
                     Titulo = "Fallout New Vegas: ¿mejor build de sniper?",
                     Texto = "Estoy volviendo al juego y quiero probar algo con VATS y sigilo.",
                     Fecha = DateTime.Now,
                     Privada = true,
-                    Categoria = categorias.First(c => c.Nombre == "Videojuegos"),
-                    Miembro = miembros.First(m => m.UserName == "gamer.ari")
+                    Categoria = categoriaGames,
+                    Miembro = miembroAri
                 };
-
                 var entrada3 = new Entrada
                 {
                     Titulo = "¿Cómo hago tofu crocante como en los restaurantes?",
                     Texto = "Intenté mil veces pero siempre me queda blando o gomoso.",
                     Fecha = DateTime.Now,
                     Privada = false,
-                    Categoria = categorias.First(c => c.Nombre == "Cocina"),
-                    Miembro = miembros.First(m => m.UserName == "chef.lu")
+                    Categoria = categoriaCocina,
+                    Miembro = miembroLu
                 };
+                context.Entradas.AddRange(entrada1, entrada2, entrada3);
+                await context.SaveChangesAsync();
 
-                _context.Entradas.AddRange(entrada1, entrada2, entrada3);
-                await _context.SaveChangesAsync();
+                // Preguntas
+                var pregunta1 = new Pregunta { Texto = "¿Sirve pausar el entrenamiento unos días y volver con RPE bajo?", Fecha = DateTime.Now, Entrada = entrada1, Miembro = miembroCaro, Activa = true };
+                var pregunta2 = new Pregunta { Texto = "¿Conviene maxear el perk de percepción si voy sniper?", Fecha = DateTime.Now, Entrada = entrada2, Miembro = miembroManu, Activa = true };
+                var pregunta3 = new Pregunta { Texto = "¿El truco es el almidón de maíz o el aceite bien caliente?", Fecha = DateTime.Now, Entrada = entrada3, Miembro = miembroRo, Activa = true };
+                context.Preguntas.AddRange(pregunta1, pregunta2, pregunta3);
+                await context.SaveChangesAsync();
+
+                // Respuestas
+                var respuesta1 = new Respuesta { Texto = "Sí, hacer un mini reset de carga con RPE 6 durante una semana me ayudó mucho.", Fecha = DateTime.Now, Miembro = miembroIvan, Pregunta = pregunta1 };
+                var respuesta2 = new Respuesta { Texto = "Percepción es clave si jugás en sigilo, pero también VATS y Agilidad te suman mucho.", Fecha = DateTime.Now, Miembro = miembroEma, Pregunta = pregunta2 };
+                var respuesta3 = new Respuesta { Texto = "Secalo con papel antes de cocinar y usá maicena + sartén bien caliente. Sale crocante seguro.", Fecha = DateTime.Now, Miembro = miembroKate, Pregunta = pregunta3 };
+                context.Respuestas.AddRange(respuesta1, respuesta2, respuesta3);
+                await context.SaveChangesAsync();
+
+                // Reacciones
+                var reaccion1 = new Reaccion { Texto = "Muy buen consejo, gracias.", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembroAgus, Respuesta = respuesta1 };
+                var reaccion2 = new Reaccion { Texto = "No sabía lo de la percepción, gracias!", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembroAri, Respuesta = respuesta2 };
+                context.Reacciones.AddRange(reaccion1, reaccion2);
+                await context.SaveChangesAsync();
+
+                // Habilitación
+                var habilitacion = new Habilitacion { Entrada = entrada2, Miembro = miembroKate };
+                context.Habilitaciones.Add(habilitacion);
+                await context.SaveChangesAsync();
             }
         }
 
-        private async Task CrearPreguntas()
-        {
-            if (!_context.Preguntas.Any())
-            {
-                var entradas = _context.Entradas.ToList();
-                var miembros = _context.Miembros.ToList();
-
-                var pregunta1 = new Pregunta
-                {
-                    Texto = "¿Sirve pausar el entrenamiento unos días y volver con RPE bajo?",
-                    Fecha = DateTime.Now,
-                    Entrada = entradas.First(e => e.Titulo.Contains("press de banca")),
-                    Miembro = miembros.First(m => m.UserName == "pwr.caro"),
-                    Activa = true
-                };
-
-                var pregunta2 = new Pregunta
-                {
-                    Texto = "¿Conviene maxear el perk de percepción si voy sniper?",
-                    Fecha = DateTime.Now,
-                    Entrada = entradas.First(e => e.Titulo.Contains("Fallout New Vegas")),
-                    Miembro = miembros.First(m => m.UserName == "anime.manu"),
-                    Activa = true
-                };
-
-                var pregunta3 = new Pregunta
-                {
-                    Texto = "¿El truco es el almidón de maíz o el aceite bien caliente?",
-                    Fecha = DateTime.Now,
-                    Entrada = entradas.First(e => e.Titulo.Contains("tofu crocante")),
-                    Miembro = miembros.First(m => m.UserName == "dev.ro"),
-                    Activa = true
-                };
-
-                _context.Preguntas.AddRange(pregunta1, pregunta2, pregunta3);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        private async Task CrearRespuestas()
-        {
-            if (!_context.Respuestas.Any())
-            {
-                var preguntas = _context.Preguntas.ToList();
-                var miembros = _context.Miembros.ToList();
-
-                var respuesta1 = new Respuesta
-                {
-                    Texto = "Sí, hacer un mini reset de carga con RPE 6 durante una semana me ayudó mucho.",
-                    Fecha = DateTime.Now,
-                    Miembro = miembros.First(m => m.UserName == "trip.ivan"),
-                    Pregunta = preguntas.First(p => p.Texto.Contains("pausar el entrenamiento"))
-                };
-
-                var respuesta2 = new Respuesta
-                {
-                    Texto = "Percepción es clave si jugás en sigilo, pero también VATS y Agilidad te suman mucho.",
-                    Fecha = DateTime.Now,
-                    Miembro = miembros.First(m => m.UserName == "musica.ema"),
-                    Pregunta = preguntas.First(p => p.Texto.Contains("perk de percepción"))
-                };
-
-                var respuesta3 = new Respuesta
-                {
-                    Texto = "Secalo con papel antes de cocinar y usá maicena + sarten bien caliente. Sale crocante seguro.",
-                    Fecha = DateTime.Now,
-                    Miembro = miembros.First(m => m.UserName == "plant.kate"),
-                    Pregunta = preguntas.First(p => p.Texto.Contains("almidón de maíz"))
-                };
-
-                _context.Respuestas.AddRange(respuesta1, respuesta2, respuesta3);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        private async Task CrearReacciones()
-        {
-            if (!_context.Reacciones.Any())
-            {
-                var respuestas = _context.Respuestas.ToList();
-                var miembros = _context.Miembros.ToList();
-
-                var reaccion1 = new Reaccion
-                {
-                    Texto = "Muy buen consejo, gracias.",
-                    Fecha = DateTime.Now,
-                    Tipo = TipoReaccion.MeGusta,
-                    Miembro = miembros.First(m => m.UserName == "iron.agus"),
-                    Respuesta = respuestas.First(r => r.Texto.Contains("mini reset de carga"))
-                };
-
-                var reaccion2 = new Reaccion
-                {
-                    Texto = "No sabía lo de la percepción, gracias!",
-                    Fecha = DateTime.Now,
-                    Tipo = TipoReaccion.MeGusta,
-                    Miembro = miembros.First(m => m.UserName == "gamer.ari"),
-                    Respuesta = respuestas.First(r => r.Texto.Contains("Percepción es clave"))
-                };
-
-                _context.Reacciones.AddRange(reaccion1, reaccion2);
-                await _context.SaveChangesAsync();
-            }
-        }
     }
 }
