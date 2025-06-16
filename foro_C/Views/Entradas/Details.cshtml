@@ -6,49 +6,32 @@
 
 <h1>Details</h1>
 
-<div>
-    <h4>Entrada</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Fecha)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Fecha)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Titulo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Titulo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Texto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Texto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Privada)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Privada)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Miembro)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Miembro.Apellido)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Categoria)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Categoria.Nombre)
-        </dd>
-    </dl>
+<div class="card mb-4">
+    <div class="card-body">
+        <h3>@Model.Titulo</h3>
+        <p class="text-muted">por @Model.Miembro.UserName · @Model.Fecha.ToShortDateString()</p>
+        <p>@Model.Texto</p>
+        <p><strong>Categoría:</strong> @Model.Categoria.Nombre</p>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<h4 class="mb-3">Respuestas (@Model.Preguntas.Count)</h4>
+
+@if (Model.Preguntas != null && Model.Preguntas.Any())
+{
+    foreach (var r in Model.Preguntas)
+    {
+        <div class="card mb-2">
+            <div class="card-body">
+                <p>@r.Texto</p>
+                <p class="text-muted small">por @r.Miembro.UserName el @r.Fecha.ToShortDateString()</p>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p class="text-muted">Aún no hay respuestas.</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary mt-4">Volver al foro</a>
