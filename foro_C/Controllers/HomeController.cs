@@ -1,25 +1,35 @@
+using foro_C.Data; 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ForoContext _context;
 
-
-        public ActionResult Index()
+        public HomeController(ForoContext context)
         {
-            var resultadoVista = View();
-            //retornaria un archivo html .el index
-            return resultadoVista;
+            _context = context;
         }
 
-        public ActionResult Privacy()
+        public async Task<IActionResult> Index()
         {
-            var resultadoVista = View();
-            //retornaria el archivo privacy de html
-            return resultadoVista;
+            var entradas = await _context.Entradas
+                .Where(e => e.Activa && !e.Privada)
+                .Include(e => e.Miembro)
+                .Include(e => e.Categoria)
+                .OrderByDescending(e => e.Fecha)
+                .ToListAsync();
+
+            return View(entradas); // Le manda la lista a la vista Index.cshtml
         }
 
-
+        public IActionResult Privacy()
+        {
+            return View();
+        }
     }
 }

@@ -3,6 +3,7 @@ using foro_C.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,8 +23,29 @@ namespace foro_C.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categorias.ToListAsync());
+            var categorias = await _context.Categorias.ToListAsync();
+            return View(categorias);
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Nombre")] Categoria categoria)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(categoria);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Si hay error, volvemos a mostrar el formulario con los errores
+            return View(categoria);
+        }
+
+
+
+
 
         // GET: Categorias/Details/5
         [AllowAnonymous]
@@ -45,6 +67,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Categorias/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -55,16 +78,34 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nombre")] Categoria categoria)
+        [Authorize(Roles = "Miembro,Administrador")]
+        public async Task<IActionResult> Edit(int id, [Bind("Titulo,Texto,Privada,CategoriaId")] Entrada formEntrada)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(categoria);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categoria);
+            if (id != formEntrada.Id) return NotFound();
+
+            // 1. Obtenemos la instancia ORIGINAL que está trackeada
+            var entradaOriginal = await _context.Entradas
+                                                .Include(e => e.Categoria)
+                                                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entradaOriginal == null) return NotFound();
+
+            // 2. Seguridad: sólo dueño o admin
+            if (!EsPropietarioOAdmin(entradaOriginal)) return Forbid();
+
+            // 3. Actualizamos propiedades UNA POR UNA (sin reemplazar la instancia)
+            entradaOriginal.Titulo = formEntrada.Titulo;
+            entradaOriginal.Texto = formEntrada.Texto;
+            entradaOriginal.Privada = formEntrada.Privada;
+            entradaOriginal.CategoriaId = formEntrada.CategoriaId;
+
+
+            // 4. Guardamos – NO hace falta Attach/Update porque entradaOriginal ya está trackeada
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Categorias/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -118,6 +159,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Categorias/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -153,6 +195,25 @@ namespace foro_C.Controllers
         private bool CategoriaExists(int id)
         {
             return _context.Categorias.Any(e => e.Id == id);
+        }
+
+        private bool EsPropietarioOAdmin(Entrada entrada)
+        {
+
+
+            var usuarioLogueado = User.Identity.Name;
+
+            // Verificamos si el usuario tiene rol administrador
+            if (User.IsInRole("Administrador"))
+                return true;
+
+            // Verificamos si el usuario es el dueño (propietario) de la entrada
+
+            if (entrada.Miembro != null && entrada.Miembro.UserName == usuarioLogueado)
+                return true;
+
+            return false;
+
         }
     }
 }

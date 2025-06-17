@@ -1,10 +1,13 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
@@ -12,178 +15,180 @@ namespace foro_C.Controllers
     public class EntradasController : Controller
     {
         private readonly ForoContext _context;
+        private readonly UserManager<Persona> _userManager;
 
-        public EntradasController(ForoContext context)
+        public EntradasController(ForoContext context, UserManager<Persona> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // GET: Entradas
+        // =========================================
+        // LISTAR (anónimo)
+        // =========================================
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-
             var entradas = await _context.Entradas
-     .Where(e => e.Activa && !e.Privada)
-     .Include(e => e.Miembro)
-     .Include(e => e.Categoria)
-     .Include(e => e.Preguntas)
-     .ToListAsync();
+                                         .Where(e => e.Activa && !e.Privada)
+                                         .Include(e => e.Miembro)
+                                         .Include(e => e.Categoria)
+                                         .Include(e => e.Preguntas)
+                                         .ToListAsync();
 
             return View(entradas);
         }
 
-        // GET: Entradas/Details/5
+        // =========================================
+        // DETALLE (anónimo, sólo públicas)
+        // =========================================
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var entrada = await _context.Entradas
-                .Include(e => e.Categoria)
-                .Include(e => e.Miembro)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (entrada == null)
-            {
-                return NotFound();
-            }
+                                        .Include(e => e.Categoria)
+                                        .Include(e => e.Miembro)
+                                        .Include(e => e.Preguntas!)
+                                            .ThenInclude(p => p.Respuestas)
+                                        .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (entrada == null) return NotFound();
+
+            // Si es privada y el usuario no está habilitado → acceso denegado
+            if (entrada.Privada && !UserCanAccessPrivateEntry(entrada))
+                return RedirectToAction("AccesoDenegado", "Account");
 
             return View(entrada);
         }
 
-        // GET: Entradas/Create
+        // =========================================
+        // CREAR
+        // =========================================
         [Authorize(Roles = "Miembro")]
         public IActionResult Create()
         {
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre");
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido");
             return View();
         }
 
-        // POST: Entradas/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Miembro")]
-        public async Task<IActionResult> Create([Bind("Id,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
+        public async Task<IActionResult> Create([Bind("Titulo,Texto,Privada,CategoriaId")] Entrada entrada)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(entrada);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre");
+                return View(entrada);
             }
-            else
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            //ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
-            //ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.MiembroId);
-            //return View(entrada);
+
+            entrada.Fecha = DateTime.UtcNow;
+            entrada.Activa = true;
+            entrada.MiembroId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            _context.Add(entrada);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Entradas/Edit/5
-        [Authorize(Roles = "Miembro")]
+        // =========================================
+        // EDITAR
+        // =========================================
+        [Authorize(Roles = "Miembro,Administrador")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var entrada = await _context.Entradas.FindAsync(id);
-            if (entrada == null)
-            {
-                return NotFound();
-            }
+            if (entrada == null) return NotFound();
+
+            if (!EsPropietarioOAdmin(entrada))
+                return Forbid(); // o RedirectToAction("AccesoDenegado","Account")
+
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.MiembroId);
             return View(entrada);
         }
 
-        // POST: Entradas/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Miembro")]
-
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Fecha,Titulo,Texto,Privada,CategoriaId,MiembroId")] Entrada entrada)
+        [Authorize(Roles = "Miembro,Administrador")]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Texto,Privada,CategoriaId")] Entrada entrada)
         {
-            if (id != entrada.Id)
+            if (id != entrada.Id) return NotFound();
+
+            var entradaOriginal = await _context.Entradas.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+            if (entradaOriginal == null) return NotFound();
+
+            if (!EsPropietarioOAdmin(entradaOriginal))
+                return Forbid();
+
+            entrada.MiembroId = entradaOriginal.MiembroId; // evitar cambio forzado
+            entrada.Fecha = entradaOriginal.Fecha;     // preservar fecha original
+
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
+                return View(entrada);
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(entrada);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EntradaExists(entrada.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.MiembroId);
-            return View(entrada);
+            _context.Update(entrada);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Entradas/Delete/5
+        // =========================================
+        // ELIMINAR (sólo Admin)
+        // =========================================
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var entrada = await _context.Entradas
-                .Include(e => e.Categoria)
-                .Include(e => e.Miembro)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (entrada == null)
-            {
-                return NotFound();
-            }
+                                        .Include(e => e.Categoria)
+                                        .Include(e => e.Miembro)
+                                        .FirstOrDefaultAsync(m => m.Id == id);
+            if (entrada == null) return NotFound();
 
             return View(entrada);
         }
 
-        // POST: Entradas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var entrada = await _context.Entradas.FindAsync(id);
-            if (entrada != null)
-            {
-                _context.Entradas.Remove(entrada);
-            }
+            if (entrada != null) _context.Entradas.Remove(entrada);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EntradaExists(int id)
+        // =========================================
+        // Helpers
+        // =========================================
+        private bool EntradaExists(int id) =>
+            _context.Entradas.Any(e => e.Id == id);
+
+        private bool EsPropietarioOAdmin(Entrada entrada)
         {
-            return _context.Entradas.Any(e => e.Id == id);
+            var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            return entrada.MiembroId == currentUserId || User.IsInRole("Administrador");
+        }
+
+        private bool UserCanAccessPrivateEntry(Entrada entrada)
+        {
+            if (!entrada.Privada) return true;
+            if (User.IsInRole("Administrador")) return true;
+
+            var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            return _context.Habilitaciones.Any(h => h.EntradaId == entrada.Id && h.MiembroId == currentUserId);
         }
     }
 }
+
+
+

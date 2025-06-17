@@ -6,20 +6,43 @@
 
 <h1>📢 Foro público</h1>
 
-@foreach (var entrada in Model)
-{
-    <div class="card mb-3 shadow-sm p-3">
-        <div class="d-flex justify-content-between">
-            <h4>@entrada.Titulo</h4>
-            <span class="text-muted small">@entrada.Fecha.ToShortDateString()</span>
-        </div>
-
-        <p>@entrada.Texto</p>
-
-        <div class="text-muted mb-2">
-            Publicado por <strong>@entrada.Miembro.UserName</strong> en <em>@entrada.Categoria.Nombre</em>
-        </div>
-
-        <a asp-action="Details" asp-route-id="@entrada.Id" class="btn btn-outline-primary btn-sm">Ver respuestas</a>
-    </div>
-}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Resumen</th>
+            <th>Imagen</th>
+            <th>Estado</th>
+            <th>Destacada</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Titulo</td>
+                <td>@item.Resumen</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.Imagen))
+                    {
+                        <img src="@item.Imagen" alt="imagen" width="100" height="60" />
+                    }
+                </td>
+                <td>
+                    <span class="badge @(item.Estado == foro_C.Models.EstadoEntrada.Publicada ? "bg-success" : "bg-secondary")">
+                        @item.Estado
+                    </span>
+                </td>
+                <td>
+                    @(item.Destacada ? "⭐ Sí" : "No")
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Ver</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
