@@ -3,13 +3,12 @@ using foro_C.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador")]          // ⚠️ solo admin para todas las acciones salvo las que marquemos con [AllowAnonymous]
     public class CategoriasController : Controller
     {
         private readonly ForoContext _context;
@@ -19,201 +18,97 @@ namespace foro_C.Controllers
             _context = context;
         }
 
-        // GET: Categorias
+        
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var categorias = await _context.Categorias.ToListAsync();
+            var categorias = await _context.Categorias
+                                           .OrderBy(c => c.Nombre)
+                                           .ToListAsync();
             return View(categorias);
         }
 
+      
+        [AllowAnonymous]
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id is null) return NotFound();
+
+            var categoria = await _context.Categorias
+                                          .Include(c => c.Entradas)   // si querés mostrar cuántas entradas tiene
+                                          .FirstOrDefaultAsync(c => c.Id == id);
+
+            return categoria is null ? NotFound() : View(categoria);
+        }
+
+    
+        public IActionResult Create() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Nombre")] Categoria categoria)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(categoria);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            if (!ModelState.IsValid) return View(categoria);
 
-            // Si hay error, volvemos a mostrar el formulario con los errores
-            return View(categoria);
-        }
-
-
-
-
-
-        // GET: Categorias/Details/5
-        [AllowAnonymous]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categoria = await _context.Categorias
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
-
-            return View(categoria);
-        }
-
-        // GET: Categorias/Create
-        [Authorize]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Categorias/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Miembro,Administrador")]
-        public async Task<IActionResult> Edit(int id, [Bind("Titulo,Texto,Privada,CategoriaId")] Entrada formEntrada)
-        {
-            if (id != formEntrada.Id) return NotFound();
-
-            // 1. Obtenemos la instancia ORIGINAL que está trackeada
-            var entradaOriginal = await _context.Entradas
-                                                .Include(e => e.Categoria)
-                                                .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (entradaOriginal == null) return NotFound();
-
-            // 2. Seguridad: sólo dueño o admin
-            if (!EsPropietarioOAdmin(entradaOriginal)) return Forbid();
-
-            // 3. Actualizamos propiedades UNA POR UNA (sin reemplazar la instancia)
-            entradaOriginal.Titulo = formEntrada.Titulo;
-            entradaOriginal.Texto = formEntrada.Texto;
-            entradaOriginal.Privada = formEntrada.Privada;
-            entradaOriginal.CategoriaId = formEntrada.CategoriaId;
-
-
-            // 4. Guardamos – NO hace falta Attach/Update porque entradaOriginal ya está trackeada
+            _context.Add(categoria);
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
 
-
-        // GET: Categorias/Edit/5
+       
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id is null) return NotFound();
 
             var categoria = await _context.Categorias.FindAsync(id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
-            return View(categoria);
+            return categoria is null ? NotFound() : View(categoria);
         }
 
-        // POST: Categorias/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre")] Categoria categoria)
         {
-            if (id != categoria.Id)
+            if (id != categoria.Id) return NotFound();
+            if (!ModelState.IsValid) return View(categoria);
+
+            try
             {
-                return NotFound();
+                _context.Update(categoria);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CategoriaExists(categoria.Id)) return NotFound();
+                throw;
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(categoria);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoriaExists(categoria.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categoria);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Categorias/Delete/5
-        [Authorize]
+     
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id is null) return NotFound();
 
             var categoria = await _context.Categorias
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
-
-            return View(categoria);
+                                          .FirstOrDefaultAsync(c => c.Id == id);
+            return categoria is null ? NotFound() : View(categoria);
         }
 
-        // POST: Categorias/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var categoria = await _context.Categorias.FindAsync(id);
-            if (categoria != null)
-            {
-                _context.Categorias.Remove(categoria);
-            }
+            if (categoria is not null) _context.Categorias.Remove(categoria);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoriaExists(int id)
-        {
-            return _context.Categorias.Any(e => e.Id == id);
-        }
-
-        private bool EsPropietarioOAdmin(Entrada entrada)
-        {
-
-
-            var usuarioLogueado = User.Identity.Name;
-
-            // Verificamos si el usuario tiene rol administrador
-            if (User.IsInRole("Administrador"))
-                return true;
-
-            // Verificamos si el usuario es el dueño (propietario) de la entrada
-
-            if (entrada.Miembro != null && entrada.Miembro.UserName == usuarioLogueado)
-                return true;
-
-            return false;
-
-        }
+        
+        private bool CategoriaExists(int id) =>
+            _context.Categorias.Any(e => e.Id == id);
     }
 }
+

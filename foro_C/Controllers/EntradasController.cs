@@ -138,9 +138,7 @@ namespace foro_C.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // =========================================
-        // ELIMINAR (sólo Admin)
-        // =========================================
+       
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -157,7 +155,7 @@ namespace foro_C.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Miembro")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var entrada = await _context.Entradas.FindAsync(id);
@@ -167,9 +165,7 @@ namespace foro_C.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // =========================================
-        // Helpers
-        // =========================================
+        // 
         private bool EntradaExists(int id) =>
             _context.Entradas.Any(e => e.Id == id);
 

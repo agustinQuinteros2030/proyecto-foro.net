@@ -22,11 +22,7 @@ namespace foro_C.Models
         [Required]
         public bool Privada { get; set; } = true;
 
-        public bool Activa { get; set; } = true;
-        public string Imagen { get; set; }
-        public string Resumen { get; set; }
-        public bool Destacada { get; set; }
-        public EstadoEntrada Estado { get; set; }
+       
 
 
         // Relaciones

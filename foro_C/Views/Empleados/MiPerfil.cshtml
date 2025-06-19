@@ -1,7 +1,7 @@
-﻿@model foro_C.Models.Miembro
+﻿@model foro_C.Models.Empleado
 
 @{
-    ViewData["Title"] = "MiPerfil";
+    ViewData["Title"] = "Mi Perfil";
 }
 
 <div class="container mt-4">
@@ -11,6 +11,11 @@
         </div>
         <div class="card-body">
             <dl class="row">
+
+
+                <dt class="col-sm-3">Legajo</dt>
+                <dd class="col-sm-9">@Model.Legajo</dd>
+
                 <dt class="col-sm-3">Usuario</dt>
                 <dd class="col-sm-9">@Model.UserName</dd>
 
