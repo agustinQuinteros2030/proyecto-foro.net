@@ -18,7 +18,7 @@ namespace foro_C.Controllers
         public async Task<IActionResult> Index()
         {
             var entradas = await _context.Entradas
-                .Where(e => e.Activa && !e.Privada)
+                .Where(e =>  !e.Privada)
                 .Include(e => e.Miembro)
                 .Include(e => e.Categoria)
                 .OrderByDescending(e => e.Fecha)
