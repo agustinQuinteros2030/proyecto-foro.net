@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace foro_C.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador,Miembro")]
     public class CategoriasController : Controller
     {
         private readonly ForoContext _context;
@@ -18,15 +19,35 @@ namespace foro_C.Controllers
             _context = context;
         }
 
+        private string NormalizarNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre)) return string.Empty;
+            var normalized = nombre.ToLowerInvariant().Normalize(NormalizationForm.FormD);
+            var sb = new System.Text.StringBuilder();
+            foreach (var c in normalized)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark && char.IsLetterOrDigit(c))
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+
         // GET: Categorias
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categorias.ToListAsync());
+            var categorias = await _context.Categorias
+                .Include(c => c.Entradas)
+                .OrderBy(c => c.Nombre)
+                .ToListAsync();
+            return View(categorias);
         }
 
         // GET: Categorias/Details/5
-        [AllowAnonymous]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,8 +66,10 @@ namespace foro_C.Controllers
         }
 
         // GET: Categorias/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var categorias = await _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
+            ViewBag.CategoriasExistentes = categorias;
             return View();
         }
 
@@ -59,14 +82,27 @@ namespace foro_C.Controllers
         {
             if (ModelState.IsValid)
             {
+                var nombreNormalizado = NormalizarNombre(categoria.Nombre);
+                var existe = await _context.Categorias
+                    .AnyAsync(c => NormalizarNombre(c.Nombre) == nombreNormalizado);
+                if (existe)
+                {
+                    var categorias = await _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
+                    ViewBag.CategoriasExistentes = categorias;
+                    ModelState.AddModelError("Nombre", "Ya existe una categoría con un nombre similar. Por favor, elija una diferente o seleccione una existente.");
+                    return View(categoria);
+                }
                 _context.Add(categoria);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            var categoriasExistentes = await _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
+            ViewBag.CategoriasExistentes = categoriasExistentes;
             return View(categoria);
         }
 
         // GET: Categorias/Edit/5
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -87,6 +123,7 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre")] Categoria categoria)
         {
             if (id != categoria.Id)
@@ -118,6 +155,7 @@ namespace foro_C.Controllers
         }
 
         // GET: Categorias/Delete/5
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -138,6 +176,7 @@ namespace foro_C.Controllers
         // POST: Categorias/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var categoria = await _context.Categorias.FindAsync(id);

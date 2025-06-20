@@ -6,6 +6,16 @@
 
 <h1>Create</h1>
 
+<div class="mb-3">
+    <h5>Categorías existentes</h5>
+    <ul>
+    @foreach (var cat in (IEnumerable<foro_C.Models.Categoria>)ViewBag.CategoriasExistentes)
+    {
+        <li>@cat.Nombre</li>
+    }
+    </ul>
+</div>
+
 <h4>Categoria</h4>
 <hr />
 <div class="row">
