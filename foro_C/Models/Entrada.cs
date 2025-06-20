@@ -19,11 +19,19 @@ namespace foro_C.Models
         [StringLength(1000, MinimumLength = 10, ErrorMessage = ErrorMsgs.longitudValida)]
         public string Texto { get; set; }
 
+        [StringLength(200, ErrorMessage = ErrorMsgs.longitudValida)]
+        public string Resumen { get; set; }
+
+        public string Imagen { get; set; }
+
         [Required]
         public bool Privada { get; set; } = true;
 
-       
+        public bool Activa { get; set; } = true;
 
+        public bool Destacada { get; set; } = false;
+
+        public EstadoEntrada Estado { get; set; } = EstadoEntrada.Borrador;
 
         // Relaciones
         [Required]
@@ -37,9 +45,6 @@ namespace foro_C.Models
         public List<Pregunta> Preguntas { get; set; } = new();
         public List<Habilitacion> Habilitaciones { get; set; } = new();
     }
-
-
-
 }
 
 

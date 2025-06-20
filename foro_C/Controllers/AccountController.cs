@@ -24,12 +24,12 @@ namespace foro_C.Controllers
         public AccountController(UserManager<Persona> usermanager,
             SignInManager<Persona> signInManager,
             RoleManager<Rol> roleManager,
-            ForoContext _contexto)
+            ForoContext contexto)
         {
             _usermanager = usermanager;
             _signInManager = signInManager;
             this._roleManager = roleManager;
-
+            _contexto = contexto;
         }
         [AllowAnonymous]
         public IActionResult Registrar()

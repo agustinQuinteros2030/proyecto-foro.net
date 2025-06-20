@@ -17,7 +17,7 @@ namespace foro_C
 {
     public static class StartUp
     {
-        public static WebApplication InicializarApp(String[] args)
+        public static async Task<WebApplication> InicializarApp(String[] args)
         {
             //creamos instancia de nuestro servidor web
             var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +28,7 @@ namespace foro_C
 
             ConfiguresServices(builder);//lo configuramos con sus servicios 
             var app = builder.Build();//despues configuramos los middelware 
-            ConfigureAsync(app);
+            await ConfigureAsync(app);
 
 
             return app;
