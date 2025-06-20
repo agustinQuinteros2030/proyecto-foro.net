@@ -1,9 +1,27 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-    //al poner @ el framework reconoce q estamos escribiendo cs
+﻿@model IEnumerable<foro_C.Models.Entrada>
+
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>Entradas recientes</h2>
+
+@foreach (var entrada in Model)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@entrada.Titulo</h5>
+            <p class="card-text">
+                @entrada.Texto.Substring(0, Math.Min(entrada.Texto.Length, 150))...
+            </p>
+            <p class="card-text">
+                <small class="text-muted">
+                    Por @entrada.Miembro.Nombre @entrada.Miembro.Apellido
+                    en @entrada.Categoria.Nombre
+                    - @entrada.Fecha.ToShortDateString()
+                </small>
+            </p>
+            <a href="@Url.Action("Details", "Entradas", new { id = entrada.Id })" class="btn btn-sm btn-primary">Ver más</a>
+        </div>
+    </div>
+}

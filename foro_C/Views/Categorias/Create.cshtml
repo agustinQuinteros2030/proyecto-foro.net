@@ -1,10 +1,10 @@
 ﻿@model foro_C.Models.Categoria
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Categoría";
 }
 
-<h1>Create</h1>
+<h1>@ViewData["Title"]</h1>
 
 <div class="mb-3">
     <h5>Categorías existentes</h5>
@@ -39,5 +39,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }

@@ -22,7 +22,10 @@ namespace foro_C.Data
         {
             base.OnModelCreating(modelBuilder);
 
-
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Categoria>()
+              .HasIndex(c => c.Nombre)
+              .IsUnique();
 
             // Clave compuesta
             modelBuilder.Entity<Habilitacion>()

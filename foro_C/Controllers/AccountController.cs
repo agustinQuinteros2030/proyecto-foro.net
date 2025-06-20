@@ -28,8 +28,7 @@ namespace foro_C.Controllers
         {
             _usermanager = usermanager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
-
+            this._roleManager = roleManager;
 
         }
         [AllowAnonymous]
@@ -50,7 +49,7 @@ namespace foro_C.Controllers
 
                 if (emailExists)
                 {
-                    ModelState.AddModelError("Email", "El email ya esta registrado.");
+                    ModelState.AddModelError("Email", "El email ya est� registrado.");
                     return View(viewModel);
                 }
 
@@ -73,7 +72,7 @@ namespace foro_C.Controllers
                     {
 
                         await _signInManager.SignInAsync(miembroACrear, isPersistent: false);
-                        return RedirectToAction("Index", "Home"); // Redirigir a la p�gina de inicio o a donde desees
+                        return RedirectToAction("Edit", "Miembros", new { id = miembroACrear.Id }); // Redirigir a la p�gina de inicio o a donde desees
                     }
                     else
                     {
@@ -110,27 +109,27 @@ namespace foro_C.Controllers
 
             if (ModelState.IsValid)
             {
-                // Buscar al usuario por nombre de usuario o email
-                Persona persona = await _usermanager.Users
-                    .FirstOrDefaultAsync(p => p.UserName == viewModel.UserName || p.Email == viewModel.UserName);
-
-                if (persona != null)
+                if (!string.IsNullOrEmpty(returnUrl))
                 {
-                    var resultado = await _signInManager.PasswordSignInAsync(persona.UserName, viewModel.Password, viewModel.Recordarme, lockoutOnFailure: false);
-
-                    if (resultado.Succeeded)
-                    {
-                        return !string.IsNullOrEmpty(returnUrl)
-                            ? Redirect(returnUrl)
-                            : RedirectToAction("Index", "Home");
-                    }
+                    return Redirect(returnUrl);
                 }
+                var resultado = await _signInManager.PasswordSignInAsync(viewModel.UserName, viewModel.Password, viewModel.Recordarme, false);
 
-                ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido. Verificá usuario/email y contraseña.");
+                if (resultado.Succeeded)
+                {
+                    return !string.IsNullOrEmpty(returnUrl)
+                        ? Redirect(returnUrl)
+                        : RedirectToAction("Index", "Home");
+                }
             }
 
+            ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido. Verificá usuario/email y contraseña.");
             return View(viewModel);
         }
+
+           
+    
+
 
 
         [Authorize]
@@ -149,7 +148,7 @@ namespace foro_C.Controllers
 
         public IActionResult AccesoDenegado(string returnUrl)
         {
-            ViewBag.ReturnUrl = returnUrl;
+           ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
