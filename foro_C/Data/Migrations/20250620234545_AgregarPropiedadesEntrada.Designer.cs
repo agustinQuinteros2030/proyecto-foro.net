@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using foro_C.Data;
 
@@ -11,9 +12,11 @@ using foro_C.Data;
 namespace foro_C.Data.Migrations
 {
     [DbContext(typeof(ForoContext))]
-    partial class ForoContextModelSnapshot : ModelSnapshot
+    [Migration("20250620234545_AgregarPropiedadesEntrada")]
+    partial class AgregarPropiedadesEntrada
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
