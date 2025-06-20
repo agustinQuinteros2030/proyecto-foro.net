@@ -3,9 +3,10 @@ using foro_C.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace foro_C.Controllers
 {
@@ -22,6 +23,7 @@ namespace foro_C.Controllers
         private string NormalizarNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre)) return string.Empty;
+
             var normalized = nombre.ToLowerInvariant().Normalize(NormalizationForm.FormD);
             var sb = new System.Text.StringBuilder();
             foreach (var c in normalized)
