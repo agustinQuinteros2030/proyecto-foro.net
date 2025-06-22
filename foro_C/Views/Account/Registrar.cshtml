@@ -5,6 +5,7 @@
 }
 
 <link rel="stylesheet" href="~/css/login.css" />
+<section>
 <div class="login-container">
     <h2>Registrarse</h2>
     <form asp-action = "Registrar">
@@ -29,32 +30,31 @@
             <span asp-validation-for="UserName" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="Email">Correo electr�nico</label>
+            <label asp-for="Email">Correo electronico</label>
             <input asp-for="Email" class="form-control" />
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="Password">Contrase�a</label>
+            <label asp-for="Password">Contraseña</label>
             <input asp-for="Password" class="form-control" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="ConfirmPassword"> Confirmar Contrase�a</label>
+            <label asp-for="ConfirmPassword"> Confirmar Contraseña</label>
             <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"> las contraseñas no coinciden</span>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         </div>
         <div class="form-group">
             <button type="submit" class="btn btn-primary btn-block" value="Registrar">Registrarse</button>
           
         </div>
         <div class="form-links">
-            <a href="ForgotPassword">�Has olvidado tu contrase�a?</a><br />
-            <span>�Ya tienes cuenta? <a href="IniciarSesion">Inicia sesi�n</a></span>
+            <a href="ForgotPassword">Has olvidado tu contraseña?</a><br />
+            <span>Ya tienes cuenta? <a href="IniciarSesion">Inicia sesion</a></span>
         </div>
     </form>
 </div>
-
+</section>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");
    }

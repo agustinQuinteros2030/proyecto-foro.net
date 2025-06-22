@@ -1,30 +1,52 @@
-﻿.navbar-brand {
-    background:url('../img/foro.png') no-repeat;
-    background-size:40px,40px;
-    height:40px;
-    width:40px;
-    margin:0px;
-    
+﻿/* --- Reset y base --- */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #181a1b;
+    color: #d7dadc;
 }
+
+body {
+    min-height: 100vh;
+    height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+h2 {
+    color:#ff4500;
+    margin-block-end:20px;
+}
+/* --- Navbar fija arriba --- */
 .navbar {
     display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
     align-items: center;
     justify-content: space-between;
     background: #1a1a1b;
     padding: 0.5rem 2rem;
-    height: 60px;
-    border-bottom: 1.5px solid #222;
-    position: sticky;
-    top: 0;
+    height: 80px;
+    box-shadow: 0 2px 8px #0002;
     z-index: 100;
 }
-.reddit-navbar-actions {
+.navbar-brand {
+    background: url('../img/foro.png') no-repeat;
+    background-size: 40px,40px;
+    height: 40px;
+    width: 40px;
+    margin: 0px;
+}
+
+.foro-navbar-actions {
     display: flex;
     align-items: center;
     gap: 0.7rem;
 }
 
-.reddit-navbar-btn-primary  {
+.foro-navbar-btn-primary {
     background: #ff4500;
     color: #fff;
     text-decoration: none;
@@ -38,13 +60,12 @@
     cursor: pointer;
 }
 
- .reddit-navbar-btn-primary:hover {
-     background: #fff;
-     color: #ff4500;
-     border: 1.5px solid #ff4500;
+.foro-navbar-btn-primary:hover {
+    background: #fff;
+    color: #ff4500;
+ }
 
-}
-.reddit-navbar-search {
+.foro-navbar-search {
     flex: 1 1 0%;
     display: flex;
     align-items: center;
@@ -56,65 +77,31 @@
     border: 1.5px solid #393b3d;
 }
 
-.reddit-navbar-search input[type="text"] {
-        background: transparent;
-        border: none;
-        outline: none;
-        color: #fff;
-        font-size: 1rem;
-        flex: 1;
-        padding: 0.6rem 0.5rem;
- }
-
-.reddit-navbar-search button {
-     background: none;
-     border: none;
-     color: #b3b3b3;
-     font-size: 1.2rem;
-     cursor: pointer;
-     margin-left: 0.5rem;
-     transition: color 0.2s;
- }
-
-.reddit-navbar-search button:hover {
-     color: #ff4500;
+ .foro-navbar-search input[type="search"] {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 1rem;
+    flex: 1;
+    padding: 0.6rem 0.5rem;
 }
 
-
-.reddit-footer {
-    background: #181a1b;
-    color: #b3bfc6;
-    padding: 2.2rem 0 1.2rem 0;
-    text-align: center;
-    border-top: 1.5px solid #23272a;
-    margin-top: 0;
+.foro-navbar-search button {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: color 0.2s;
 }
 
-.reddit-footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 2.2rem;
-    margin-bottom: 0.7rem;
-    flex-wrap: wrap;
+.foro-navbar-search button:hover {
+    color: #ff4500;
 }
 
-    .reddit-footer-links a {
-        color: #b3bfc6;
-        text-decoration: none;
-        font-size: 1.05rem;
-        transition: color 0.2s;
-    }
-
-        .reddit-footer-links a:hover {
-            color: #ff4500;
-        }
-
-.reddit-footer-copyright {
-    color: #888;
-    font-size: 0.98rem;
-}
-
-/* Reglas Styles */
+/* --- Rules --- */
 .rules-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -162,18 +149,356 @@
         margin: 0;
     }
 
-.reddit-navbar-btn-primary {
-    background-color: #ff4500;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    margin: 4px;
-    border-radius: 4px;
-    text-decoration: none;
+}
+/* --- Contenido central scrolleable --- */
+
+.foro-main-content, .foro-content-scrollable {
+    flex: 1 1 0%;
+    overflow-y: auto;
+    padding: 2em 1.5em;
+    background: #181a20;
+    box-sizing: border-box;
+    height: calc(100vh - 80px); /* 80px es la altura de tu navbar */
+    min-height: 0;
+}
+.foro-main-content {
+    display: grid;
+    grid-template-columns: 1fr 2.2fr 1fr;
+    gap: 2.5rem;
+    width: auto;
+    margin: 0 auto;
+    flex: 1;
+    padding: 2em 1.5em;
 }
 
-    .reddit-navbar-btn-primary:hover {
-        background-color: #cc3700;
-        color: white;
+.container-main {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+
+
+.foro-content-area {
+    width: max-content;
+    overflow-y: auto;
+    height: 100%;
+    padding-right: 0.5rem;
+}
+
+/* --- Sidebar categorías y usuarios --- */
+.foro-sidebar,
+.foro-sidebar-right {
+    width: 260px;
+    min-width: 200px;
+    max-width: 320px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.foro-sidebar-box,
+.foro-description-card {
+    background: #23272a;
+    border-radius: 18px;
+    padding: 2rem 1.5rem;
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+    border: none;
+    margin-block-end: 30px;
+}
+
+    .foro-sidebar-box h2,
+    .foro-sidebar-right .foro-sidebar-box h2 {
+        color: #ff4500;
+        font-size: 1.3rem;
+        margin-bottom: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 0.5px;
     }
 
+    .foro-sidebar-box ul,
+    .foro-sidebar-right .foro-sidebar-box ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .foro-sidebar-box li,
+    .foro-sidebar-right .foro-sidebar-box li {
+        margin-bottom: 1rem;
+        color: #b3bfc6;
+        font-size: 1.08rem;
+    }
+
+.sidebar-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    background: #ff4500;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.foro-description-card {
+    text-align: center;
+    font-size: 1.08rem;
+    color: #b3bfc6;
+    margin-top: 0.5rem;
+}
+
+.foro-content-area h2 {
+    color: #ff4500;
+    border-bottom: 2.5px solid #ff4500;
+    padding-bottom: 0.7rem;
+    margin-bottom: 2.2rem;
+    font-size: 2.3rem;
+    font-weight: bold;
+}
+
+.foro-card {
+    border: none;
+    background: #23272a;
+    margin-bottom: 2.2rem;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+    color: #fff;
+    padding: 1.5rem 2rem;
+}
+
+.foro-card-title {
+    color: #ff4500;
+    font-size: 1.35rem;
+    font-weight: bold;
+    margin-bottom: 0.7rem;
+}
+
+.foro-card-text {
+    color: #b3bfc6;
+    font-size: 1.08rem;
+    margin-bottom: 0.7rem;
+}
+
+.foro-card .btn {
+    margin-top: 0.5rem;
+}
+
+/* --- Categoria sección --- */
+.foro-categorias-header {
+    display: flex;
+    align-items: center;
+    gap: 340px;
+    margin-block-end: 25px;
+}
+
+.foro-categoria-card {
+    background: #23272a;
+    color: #fff;
+    margin-bottom: 1.0rem;
+    padding: 1.2rem 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+    display: flex;
+    align-items: center;
+}
+
+.foro-categoria-nombre {
+    font-size: 1.15rem;
+    font-weight: bold;
+}
+
+.foro-table {
+    background: #23272a;
+    color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+}
+
+    .foro-table th {
+        background: #ff4500;
+        color: #fff;
+        border: none;
+        font-weight: bold;
+        font-size: 1.08rem;
+        border-right: 1px solid #393b3d;
+        padding: 10px;
+    }
+
+        .foro-table th:last-child {
+            border-right: none;
+        }
+
+    .foro-table td {
+        background: #23272a;
+        color: #fff;
+        border-top: 1px solid #393b3d;
+        border-right: 1px solid #393b3d;
+        vertical-align: middle;
+        padding: 20px;
+    }
+
+        .foro-table td:last-child {
+            border-right: none;
+        }
+
+    .foro-table tr:hover {
+        background: #2d3135;
+    }
+
+    .foro-table .foro-btn-group {
+        display: inline-grid;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .foro-table .btn,
+    .foro-table button {
+        font-size: 0.95rem;
+        border-radius: 6px;
+        margin: 0;
+        min-width: 70px;
+    }
+
+    .foro-table .btn-warning {
+        background: #ff4500;
+        border: none;
+        color: #fff;
+    }
+
+        .foro-table .btn-warning:hover {
+            background: #cc3700;
+            color: #fff;
+        }
+
+    .foro-table .btn-success {
+        background: #1db954;
+        border: none;
+        color: #fff;
+    }
+
+.foro-table .btn-success:hover {
+            background: #168f3e;
+            color: #fff;
+ }
+
+/* --- Entradas sección --- */
+.ultimas-entradas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    margin-bottom: 2em;
+}
+
+.entrada-card {
+    background: #23272f;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px #0002;
+    padding: 1.5em;
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.entrada-card:hover {
+    box-shadow: 0 4px 16px #0004;
+}
+
+.card-content h3 {
+    margin-top: 0;
+}
+
+.entrada-meta {
+    color: #aaa;
+    font-size: 0.95em;
+    margin-bottom: 0.5em;
+}
+
+.entrada-reacciones {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.entrada-acciones {
+    display: flex;
+    gap: 1em;
+}
+
+.btn-like, .btn-comment {
+    text-decoration: none;
+    color: #fff;
+    background: #333;
+    border-radius: 5px;
+    padding: 0.3em 1em;
+    transition: background 0.2s;
+}
+
+.btn-like:hover, .btn-comment:hover {
+        background: #ff4500;
+        color: #fff;
+}
+
+/* --- Top miembros sección --- */
+.top-miembros-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+    margin-bottom: 2em;
+    margin-top: 1em;
+}
+
+.miembro-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #23272f;
+    border-radius: 8px;
+    padding: 0.7em 1.2em;
+    color: #fff;
+    font-size: 1.05em;
+}
+
+.miembro-nombre {
+    font-weight: 500;
+}
+
+.miembro-cantidad {
+    color: #ffb347;
+    font-weight: 600;
+}
+
+/* --- Footer siempre al final --- */
+
+.foro-footer {
+    background: #181a1b;
+    color: #b3bfc6;
+    padding: 2.2rem 0 1.2rem 0;
+    text-align: center;
+    width: 100vw;
+    position: fixed !important;
+    box-sizing: border-box;
+}
+
+.foro-footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2.2rem;
+    margin-bottom: 0.7rem;
+    flex-wrap: wrap;
+}
+
+    .foro-footer-links a {
+        color: #b3bfc6;
+        text-decoration: none;
+        font-size: 1.05rem;
+        transition: color 0.2s;
+    }
+
+.foro-footer-links a:hover {
+      color: #ff4500;
+ }
+
+.foro-footer-copyright {
+    color: #888;
+    font-size: 0.98rem;
+}

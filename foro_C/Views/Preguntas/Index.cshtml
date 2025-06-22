@@ -1,59 +1,66 @@
 ﻿@model IEnumerable<foro_C.Models.Pregunta>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Preguntas";
 }
 
-<h1>Index</h1>
+<h1 class="mb-4" style="color:#ff4500;">@ViewData["Title"]</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Activa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Entrada)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Fecha)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Texto)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Miembro)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Activa)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Entrada.Texto)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fecha)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Texto)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Miembro.Apellido)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="foro-card">
+    <p>
+        <a asp-action="Create" class="foro-navbar-btn-primary mb-3">Crear Nueva Pregunta</a>
+    </p>
+    <div class="table-responsive">
+        <table class="foro-table">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Activa)</th>
+                    <th>@Html.DisplayNameFor(model => model.Entrada)</th>
+                    <th>@Html.DisplayNameFor(model => model.Fecha)</th>
+                    <th>@Html.DisplayNameFor(model => model.Texto)</th>
+                    <th>@Html.DisplayNameFor(model => model.Miembro)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (item.Activa)
+                            {
+                                <span class="badge bg-success">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactiva</span>
+                            }
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.Entrada.Texto)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Fecha)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Texto)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Miembro.Apellido)</td>
+                        <td>
+                            <div class="foro-btn-group">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Detalles</a>
+                                @if (User.IsInRole("Administrador") && item.Activa)
+                                {
+                                    <form asp-action="Desactivar" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-warning">Desactivar</button>
+                                    </form>
+                                }
+                                @if (User.IsInRole("Administrador") && !item.Activa)
+                                {
+                                    <form asp-action="Activar" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">Activar</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

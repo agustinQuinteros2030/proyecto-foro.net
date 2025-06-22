@@ -1,11 +1,10 @@
 ﻿using foro_C.Data;
 using foro_C.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
@@ -14,17 +13,22 @@ namespace foro_C.Controllers
     public class CategoriasController : Controller
     {
         private readonly ForoContext _context;
+        private readonly SignInManager<Persona> _signInManager;
 
-        public CategoriasController(ForoContext context)
+        public CategoriasController(ForoContext context, SignInManager<Persona> signInManager)
         {
             _context = context;
+            _signInManager = signInManager;
         }
+
+
 
         // GET: Categorias
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categorias.ToListAsync());
+            ViewBag.EstaAutenticado = _signInManager.IsSignedIn(User);
+            return View(await _context.Categorias.ToListAsync()); ;
         }
 
         // GET: Categorias/Details/5
@@ -43,20 +47,39 @@ namespace foro_C.Controllers
         // GET: Categorias/Create
         public IActionResult Create()
         {
+            ViewBag.CategoriasExistentes = _context.Categorias.OrderBy(c => c.Nombre).ToList();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nombre")] Categoria categoria)
+        public async Task<IActionResult> Create([Bind("Nombre")] Categoria categoria)
         {
-            if (ModelState.IsValid)
+            var nombreNuevo = new string(categoria.Nombre
+                .Where(char.IsLetterOrDigit)
+                .ToArray())
+                .ToLowerInvariant();
+
+            var categoriasExistentes = _context.Categorias
+                .AsEnumerable()
+                .Select(c => new string(c.Nombre.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant())
+                .ToList();
+
+            // Considera "parecida" si la distancia es 2 o menos (ajusta el umbral si quieres)
+            bool esParecida = categoriasExistentes.Any(nombreExistente =>
+                LevenshteinDistance(nombreNuevo, nombreExistente) <= 2
+            );
+
+            if (esParecida)
             {
-                _context.Add(categoria);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("Nombre", "Ya existe una categoría igual o muy parecida.");
+                ViewBag.CategoriasExistentes = _context.Categorias.OrderBy(c => c.Nombre).ToList();
+                return View(categoria);
             }
-            return View(categoria);
+
+            _context.Add(categoria);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Categorias/Edit/5
@@ -114,9 +137,38 @@ namespace foro_C.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+
         private bool CategoriaExists(int id) =>
             _context.Categorias.Any(e => e.Id == id);
+
+        private int LevenshteinDistance(string source, string target)
+        {
+            if (string.IsNullOrEmpty(source)) return target?.Length ?? 0;
+            if (string.IsNullOrEmpty(target)) return source.Length;
+
+            var sourceLength = source.Length;
+            var targetLength = target.Length;
+            var matrix = new int[sourceLength + 1, targetLength + 1];
+
+            for (var i = 0; i <= sourceLength; i++) matrix[i, 0] = i;
+            for (var j = 0; j <= targetLength; j++) matrix[0, j] = j;
+
+            for (var i = 1; i <= sourceLength; i++)
+            {
+                for (var j = 1; j <= targetLength; j++)
+                {
+                    var cost = source[i - 1] == target[j - 1] ? 0 : 1;
+                    matrix[i, j] = new[]
+                    {
+                        matrix[i - 1, j] + 1,
+                        matrix[i, j - 1] + 1,
+                        matrix[i - 1, j - 1] + cost
+                    }.Min();
+                }
+            }
+
+            return matrix[sourceLength, targetLength];
+        }
     }
 }
 

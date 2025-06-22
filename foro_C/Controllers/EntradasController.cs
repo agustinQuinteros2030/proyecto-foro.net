@@ -30,7 +30,7 @@ namespace foro_C.Controllers
         public async Task<IActionResult> Index()
         {
             var entradas = await _context.Entradas
-                                         .Where(e => e.Activa && !e.Privada)
+                                         .Where(e =>  !e.Privada)
                                          .Include(e => e.Miembro)
                                          .Include(e => e.Categoria)
                                          .Include(e => e.Preguntas)
@@ -85,7 +85,7 @@ namespace foro_C.Controllers
             }
 
             entrada.Fecha = DateTime.UtcNow;
-            entrada.Activa = true;
+            entrada.Privada = true;
             entrada.MiembroId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             _context.Add(entrada);

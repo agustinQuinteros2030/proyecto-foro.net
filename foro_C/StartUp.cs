@@ -79,13 +79,11 @@ namespace foro_C
                 opciones.Cookie.Name = "IdentidadForoApp";
             });
 
-          
+
         }
 
         private static async Task ConfigureAsync(WebApplication app)
         {
-
-
             // Se ejecuta antes que empiece la app
             using (var scope = app.Services.CreateScope())
             {
@@ -98,13 +96,16 @@ namespace foro_C
                 if (context.Database.IsSqlServer())
                 {
                     context.Database.Migrate();
-                  
+
+                    // Precarga automática usando Precarga1
+                    var precarga = services.GetRequiredService<foro_C.Controllers.Precarga1>();
+                    // Llama al método de precarga
+                    await precarga.Index();
                 }
-                else            // InMemory
+                else // InMemory
                 {
                     await Precarga.EnviarPrecargaAsync(context, roleManager, userManager);
                 }
-
             }
 
             // Middleware HTTP
@@ -117,7 +118,7 @@ namespace foro_C
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseAuthentication(); // autenticamos antes de autorizar
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

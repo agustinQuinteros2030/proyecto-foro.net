@@ -1,27 +1,172 @@
 ﻿@model IEnumerable<foro_C.Models.Entrada>
-
 @{
     ViewData["Title"] = "Inicio";
 }
 
-<h2>Entradas recientes</h2>
+<div class="foro-main-wrapper">
+    <div class="foro-main-content">
 
-@foreach (var entrada in Model)
-{
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">@entrada.Titulo</h5>
-            <p class="card-text">
-                @entrada.Texto.Substring(0, Math.Min(entrada.Texto.Length, 150))...
-            </p>
-            <p class="card-text">
-                <small class="text-muted">
-                    Por @entrada.Miembro.Nombre @entrada.Miembro.Apellido
-                    en @entrada.Categoria.Nombre
-                    - @entrada.Fecha.ToShortDateString()
-                </small>
-            </p>
-            <a href="@Url.Action("Details", "Entradas", new { id = entrada.Id })" class="btn btn-sm btn-primary">Ver más</a>
+        <!-- Lateral izquierdo -->
+        <aside class="foro-sidebar">
+            <div class="foro-sidebar-box">
+                <h2>
+                    <a asp-page="/Categorias/Index" style="color: inherit; text-decoration: inherit;">
+                        CATEGORIAS
+                    </a>
+                </h2>
+                <ul>
+                    @if (ViewBag.Categorias != null)
+                    {
+                        foreach (var cat in ViewBag.Categorias)
+                        {
+                            <li>
+                                <span class="sidebar-dot"></span>
+                                @cat.Nombre
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="foro-description-card">
+                <strong>¿Qué es foro_C?</strong>
+                <p>
+                    foro_C es una comunidad en línea donde puedes compartir ideas, debatir temas y conectar con otros usuarios sobre tecnología, programación y mucho más. ¡Participa y haz crecer la comunidad!
+                </p>
+            </div>
+        </aside>
+
+        <!-- Columna central scrolleable -->
+        <div class="foro-content-scrollable">
+            <section class="ultimas-entradas">
+                <h2>Últimas entradas</h2>
+                @if (ViewBag.UltimasEntradas != null)
+                {
+                    <div class="ultimas-entradas-list">
+                        @foreach (var entrada in ViewBag.UltimasEntradas)
+                        {
+                            <div class="entrada-card" onclick="window.location='@Url.Action("Details", "Entradas", new { id = entrada.Id })'">
+                                <div class="card-content">
+                                    <h3>@entrada.Titulo</h3>
+                                    <p>@entrada.Resumen</p>
+                                    <div class="entrada-meta">
+                                        <span>@entrada.MiembroNombre</span> ·
+                                        <span>@entrada.CategoriaNombre</span> ·
+                                        <span>@entrada.Fecha.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <div class="entrada-reacciones">
+                                        <span>👍</span>
+                                        <span>@entrada.CantidadReacciones</span>
+                                        <span style="margin-left:1em;">@entrada.CantidadComentarios comentarios</span>
+                                    </div>
+                                    <div class="entrada-acciones">
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <button type="button"
+                                                    class="btn-like"
+                                                    data-entrada-id="@entrada.Id"
+                                                    onclick="handleLikeClick(event)"
+                                                    ondblclick="handleLikeDoubleClick(event)">
+                                                👍 Me gusta
+                                            </button>
+                                            <a asp-controller="Entradas" asp-action="Details" asp-route-id="@entrada.Id" class="btn-comment">💬 Comentar</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="Account/IniciarSesion" class="btn-like">👍 Me gusta</a>
+                                            <a href="Account/IniciarSesion" class="btn-comment">💬 Comentar</a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+            <section class="top-entradas">
+                <h2>Top 5 entradas con más preguntas y respuestas</h2>
+                @if (ViewBag.TopEntradasPregResp != null)
+                {
+                    <div class="ultimas-entradas-list">
+                        @foreach (var entrada in ViewBag.TopEntradasPregResp)
+                        {
+                            <div class="entrada-card" onclick="window.location='@Url.Action("Details", "Entradas", new { id = entrada.Id })'">
+                                <div class="card-content">
+                                    <h3>@entrada.Titulo</h3>
+                                    <p>@entrada.Resumen</p>
+                                    <div class="entrada-meta">
+                                        <span>@entrada.MiembroNombre</span> ·
+                                        <span>@entrada.CategoriaNombre</span> ·
+                                        <span>@entrada.Fecha.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <div class="entrada-reacciones">
+                                        <span>👍</span>
+                                        <span>@entrada.CantidadReacciones</span>
+                                        <span style="margin-left:1em;">@entrada.CantidadComentarios comentarios</span>
+                                    </div>
+                                    <div class="entrada-acciones">
+                                        <a href="Account/IniciarSesion" class="btn-like">👍 Me gusta</a>
+                                        <a href="Account/IniciarSesion" class="btn-comment">💬 Comentar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+            <section class="top-miembros-mes">
+                <h2>Top 3 miembros con más entradas este mes</h2>
+                @if (ViewBag.TopMiembrosMes != null)
+                {
+                    <div class="top-miembros-list">
+                        @foreach (var miembro in ViewBag.TopMiembrosMes)
+                        {
+                            <div class="miembro-row">
+                                <span class="miembro-nombre">@miembro.NombreCompleto</span>
+                                <span class="miembro-cantidad">@miembro.CantidadEntradas entradas 🔥</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
         </div>
+
+        <!-- Lateral derecho -->
+        <aside class="foro-sidebar-right">
+            <div class="foro-sidebar-box">
+                <h2>COMUNIDADES POPULARES</h2>
+                <ul>
+                    @if (ViewBag.Categorias != null)
+                    {
+                        foreach (var cat in ViewBag.Categorias)
+                        {
+                            <li>
+                                <span class="sidebar-dot"></span>
+                                @cat.Nombre
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="foro-sidebar-box">
+                <h2>
+                    <a asp-page="/Miembros/Index" style="color: inherit; text-decoration: inherit;">
+                        USUARIOS POPULARES
+                    </a>
+                </h2>
+                <ul>
+                    @if (ViewBag.TopMiembros != null)
+                    {
+                        foreach (var user in ViewBag.TopMiembros)
+                        {
+                            <li>
+                                <span class="user-avatar">👤</span>
+                                @user.UserName
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </aside>
+
     </div>
-}
+</div>

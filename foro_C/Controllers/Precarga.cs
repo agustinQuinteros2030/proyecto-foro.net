@@ -1,14 +1,12 @@
 ﻿using foro_C.Data;
 using foro_C.Helpers;
 using foro_C.Models;
-using Google.Apis.Admin.Directory.directory_v1.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
@@ -139,79 +137,97 @@ namespace foro_C.Controllers
 
         private async Task<List<Entrada>> CrearEntradasAsync(List<Categoria> categorias, List<Miembro> miembros)
         {
-            var entrada1 = new Entrada
-            {
-                Titulo = "¿Cómo mejorar el press de banca?",
-                Texto = "Estoy estancado en mi 1RM de banca hace 3 meses. ¿Qué me recomiendan?",
-                Fecha = DateTime.Now,
-                Privada = false,
-                Categoria = categorias[0],
-                Miembro = miembros[0]
-            };
+            // 3 miembros principales: 0 (iron.agus), 1 (gamer.ari), 2 (chef.lu)
+            var entradas = new List<Entrada>
+    {
+        // Powerlifting (4 entradas)
+        new() { Titulo = "¿Cómo mejorar el press de banca?", Texto = "Estoy estancado en mi 1RM de banca hace 3 meses. ¿Qué me recomiendan?", Fecha = DateTime.Now, Privada = false, Categoria = categorias[0], Miembro = miembros[0] },
+        new() { Titulo = "Errores comunes en peso muerto", Texto = "¿Qué errores debo evitar al hacer peso muerto?", Fecha = DateTime.Now, Privada = false, Categoria = categorias[0], Miembro = miembros[0] },
+        new() { Titulo = "¿Cómo progresar en sentadillas?", Texto = "No logro subir de peso en sentadillas, ¿algún consejo?", Fecha = DateTime.Now, Privada = false, Categoria = categorias[0], Miembro = miembros[0] },
+        new() { Titulo = "¿Cómo evitar lesiones en press militar?", Texto = "Me duele el hombro al hacerlo, ¿qué hago mal?", Fecha = DateTime.Now, Privada = false, Categoria = categorias[0], Miembro = miembros[0] },
 
-            var entrada2 = new Entrada
-            {
-                Titulo = "Fallout New Vegas: ¿mejor build de sniper?",
-                Texto = "Estoy volviendo al juego y quiero probar algo con VATS y sigilo.",
-                Fecha = DateTime.Now,
-                Privada = true,
-                Categoria = categorias[1],
-                Miembro = miembros[1]
-            };
+        // Videojuegos (3 entradas)
+        new() { Titulo = "Fallout New Vegas: ¿mejor build de sniper?", Texto = "Estoy volviendo al juego y quiero probar algo con VATS y sigilo.", Fecha = DateTime.Now, Privada = true, Categoria = categorias[1], Miembro = miembros[1] },
+        new() { Titulo = "¿Qué monitor gamer recomiendan?", Texto = "Busco uno de 144Hz para FPS, ¿alguna marca?", Fecha = DateTime.Now, Privada = false, Categoria = categorias[1], Miembro = miembros[1] },
+        new() { Titulo = "¿Vale la pena la PS5?", Texto = "¿O espero a la próxima generación?", Fecha = DateTime.Now, Privada = false, Categoria = categorias[1], Miembro = miembros[1] },
 
-            var entrada3 = new Entrada
-            {
-                Titulo = "¿Cómo hago tofu crocante como en los restaurantes?",
-                Texto = "Intenté mil veces pero siempre me queda blando o gomoso.",
-                Fecha = DateTime.Now,
-                Privada = false,
-                Categoria = categorias[2],
-                Miembro = miembros[2]
-            };
+        // Cocina (3 entradas)
+        new() { Titulo = "¿Cómo hago tofu crocante como en los restaurantes?", Texto = "Intenté mil veces pero siempre me queda blando o gomoso.", Fecha = DateTime.Now, Privada = false, Categoria = categorias[2], Miembro = miembros[2] },
+        new() { Titulo = "Receta de pan sin gluten", Texto = "¿Alguien tiene una receta fácil y rica?", Fecha = DateTime.Now, Privada = false, Categoria = categorias[2], Miembro = miembros[2] },
+        new() { Titulo = "¿Cómo hacer sushi en casa?", Texto = "Tips para principiantes y errores a evitar.", Fecha = DateTime.Now, Privada = false, Categoria = categorias[2], Miembro = miembros[2] }
+    };
 
-            _context.Entradas.AddRange(entrada1, entrada2, entrada3);
+            _context.Entradas.AddRange(entradas);
             await _context.SaveChangesAsync();
-
-            return new List<Entrada> { entrada1, entrada2, entrada3 };
+            return entradas;
         }
 
         private async Task<List<Pregunta>> CrearPreguntasAsync(List<Entrada> entradas, List<Miembro> miembros)
         {
             var preguntas = new List<Pregunta>
-            {
-                new() { Texto = "¿Sirve pausar el entrenamiento unos días y volver con RPE bajo?", Fecha = DateTime.Now, Entrada = entradas[0], Miembro = miembros[7], Activa = true },
-                new() { Texto = "¿Conviene maxear el perk de percepción si voy sniper?", Fecha = DateTime.Now, Entrada = entradas[1], Miembro = miembros[5], Activa = true },
-                new() { Texto = "¿El truco es el almidón de maíz o el aceite bien caliente?", Fecha = DateTime.Now, Entrada = entradas[2], Miembro = miembros[3], Activa = true }
-            };
+    {
+        // Powerlifting (varias preguntas en las primeras 2 entradas)
+        new() { Texto = "¿Sirve pausar el entrenamiento unos días y volver con RPE bajo?", Fecha = DateTime.Now, Entrada = entradas[0], Miembro = miembros[7], Activa = true },
+        new() { Texto = "¿Qué opinan de los accesorios para banca?", Fecha = DateTime.Now, Entrada = entradas[0], Miembro = miembros[3], Activa = true },
+        new() { Texto = "¿Cuántas repeticiones recomiendan para fuerza?", Fecha = DateTime.Now, Entrada = entradas[1], Miembro = miembros[2], Activa = true },
+        new() { Texto = "¿Cómo evitar redondear la espalda?", Fecha = DateTime.Now, Entrada = entradas[1], Miembro = miembros[7], Activa = true },
+        // Videojuegos (varias preguntas en la primera entrada)
+        new() { Texto = "¿Conviene maxear el perk de percepción si voy sniper?", Fecha = DateTime.Now, Entrada = entradas[4], Miembro = miembros[5], Activa = true },
+        new() { Texto = "¿Qué armas tienen mejor sinergia con sigilo?", Fecha = DateTime.Now, Entrada = entradas[4], Miembro = miembros[6], Activa = true },
+        // Cocina (varias preguntas en la primera entrada)
+        new() { Texto = "¿El truco es el almidón de maíz o el aceite bien caliente?", Fecha = DateTime.Now, Entrada = entradas[7], Miembro = miembros[3], Activa = true },
+        new() { Texto = "¿Qué tofu recomiendan comprar?", Fecha = DateTime.Now, Entrada = entradas[7], Miembro = miembros[4], Activa = true },
+        // Una pregunta para cada entrada restante
+        new() { Texto = "¿Qué hacer si me duele el hombro al hacer press militar?", Fecha = DateTime.Now, Entrada = entradas[3], Miembro = miembros[1], Activa = true },
+        new() { Texto = "¿IPS o TN para gaming?", Fecha = DateTime.Now, Entrada = entradas[5], Miembro = miembros[5], Activa = true },
+        new() { Texto = "¿La PS5 tiene retrocompatibilidad?", Fecha = DateTime.Now, Entrada = entradas[6], Miembro = miembros[8], Activa = true },
+        new() { Texto = "¿Qué harinas sin gluten funcionan mejor?", Fecha = DateTime.Now, Entrada = entradas[8], Miembro = miembros[6], Activa = true },
+        new() { Texto = "¿Qué arroz es mejor para sushi?", Fecha = DateTime.Now, Entrada = entradas[9], Miembro = miembros[9], Activa = true }
+    };
 
             _context.Preguntas.AddRange(preguntas);
             await _context.SaveChangesAsync();
-
             return preguntas;
         }
 
         private async Task<List<Respuesta>> CrearRespuestasAsync(List<Pregunta> preguntas, List<Miembro> miembros)
         {
             var respuestas = new List<Respuesta>
-            {
-                new() { Texto = "Sí, hacer un mini reset de carga con RPE 6 durante una semana me ayudó mucho.", Fecha = DateTime.Now, Pregunta = preguntas[0], Miembro = miembros[9] },
-                new() { Texto = "Percepción es clave si jugás en sigilo, pero también VATS y Agilidad te suman mucho.", Fecha = DateTime.Now, Pregunta = preguntas[1], Miembro = miembros[6] },
-                new() { Texto = "Secalo con papel antes de cocinar y usá maicena + sartén bien caliente. Sale crocante seguro.", Fecha = DateTime.Now, Pregunta = preguntas[2], Miembro = miembros[8] }
-            };
+    {
+        // Powerlifting
+        new() { Texto = "Sí, hacer un mini reset de carga con RPE 6 durante una semana me ayudó mucho.", Fecha = DateTime.Now, Pregunta = preguntas[0], Miembro = miembros[9] },
+        new() { Texto = "Los accesorios ayudan, pero no reemplazan la técnica.", Fecha = DateTime.Now, Pregunta = preguntas[1], Miembro = miembros[8] },
+        new() { Texto = "Entre 3 y 5 repeticiones, 4 series.", Fecha = DateTime.Now, Pregunta = preguntas[2], Miembro = miembros[5] },
+        new() { Texto = "Practica con poco peso y mucha técnica.", Fecha = DateTime.Now, Pregunta = preguntas[3], Miembro = miembros[2] },
+        // Videojuegos
+        new() { Texto = "Percepción es clave si jugás en sigilo, pero también VATS y Agilidad te suman mucho.", Fecha = DateTime.Now, Pregunta = preguntas[4], Miembro = miembros[6] },
+        new() { Texto = "El rifle silenciado es lo mejor para sigilo.", Fecha = DateTime.Now, Pregunta = preguntas[5], Miembro = miembros[5] },
+        // Cocina
+        new() { Texto = "Secalo con papel antes de cocinar y usá maicena + sartén bien caliente. Sale crocante seguro.", Fecha = DateTime.Now, Pregunta = preguntas[6], Miembro = miembros[7] },
+        new() { Texto = "El tofu firme es el mejor para crocancia.", Fecha = DateTime.Now, Pregunta = preguntas[7], Miembro = miembros[6] },
+        // Resto
+        new() { Texto = "Rotaciones y bandas elásticas ayudan mucho.", Fecha = DateTime.Now, Pregunta = preguntas[8], Miembro = miembros[8] },
+        new() { Texto = "IPS para colores, TN para velocidad.", Fecha = DateTime.Now, Pregunta = preguntas[9], Miembro = miembros[4] },
+        new() { Texto = "Sí, pero no todos los juegos.", Fecha = DateTime.Now, Pregunta = preguntas[10], Miembro = miembros[1] },
+        new() { Texto = "La mezcla de arroz y maíz funciona bien.", Fecha = DateTime.Now, Pregunta = preguntas[11], Miembro = miembros[3] },
+        new() { Texto = "El arroz glutinoso es el ideal.", Fecha = DateTime.Now, Pregunta = preguntas[12], Miembro = miembros[0] }
+    };
 
             _context.Respuestas.AddRange(respuestas);
             await _context.SaveChangesAsync();
-
             return respuestas;
         }
 
         private async Task CrearReaccionesAsync(List<Respuesta> respuestas, List<Miembro> miembros)
         {
             var reacciones = new List<Reaccion>
-            {
-                new() { Texto = "Muy buen consejo, gracias.", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembros[0], Respuesta = respuestas[0] },
-                new() { Texto = "No sabía lo de la percepción, gracias!", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembros[1], Respuesta = respuestas[1] }
-            };
+    {
+        new() { Texto = "Muy buen consejo, gracias.", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembros[0], Respuesta = respuestas[0] },
+        new() { Texto = "¡Me sirvió mucho!", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembros[1], Respuesta = respuestas[1] },
+        new() { Texto = "No sabía lo de la percepción, gracias!", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembros[2], Respuesta = respuestas[4] },
+        new() { Texto = "¡Gran dato!", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembros[3], Respuesta = respuestas[5] },
+        new() { Texto = "¡Voy a probarlo!", Fecha = DateTime.Now, Tipo = TipoReaccion.MeGusta, Miembro = miembros[4], Respuesta = respuestas[6] }
+    };
 
             _context.Reacciones.AddRange(reacciones);
             await _context.SaveChangesAsync();
@@ -219,16 +235,18 @@ namespace foro_C.Controllers
 
         private async Task CrearHabilitacionesAsync(List<Entrada> entradas, List<Miembro> miembros)
         {
-            var habilitacion = new Habilitacion
-            {
-                Entrada = entradas[1],
-                Miembro = miembros[8]
-            };
+            var habilitaciones = new List<Habilitacion>
+    {
+        // Ejemplo: habilitar a distintos miembros para distintas entradas
+        new() { Entrada = entradas[1], Miembro = miembros[3] },
+        new() { Entrada = entradas[4], Miembro = miembros[5] },
+        new() { Entrada = entradas[7], Miembro = miembros[6] },
+        new() { Entrada = entradas[0], Miembro = miembros[2] },
+        new() { Entrada = entradas[2], Miembro = miembros[8] }
+    };
 
-            _context.Habilitaciones.Add(habilitacion);
+            _context.Habilitaciones.AddRange(habilitaciones);
             await _context.SaveChangesAsync();
         }
     }
 }
-
-   

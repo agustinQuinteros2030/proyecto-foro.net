@@ -28,13 +28,16 @@
                     <input class="form-check-input" asp-for="Privada" /> @Html.DisplayNameFor(model => model.Privada)
                 </label>
             </div>
-            <div class="form-group">
-                <label asp-for="CategoriaId" class="control-label"></label>
-                <select asp-for="CategoriaId" class ="form-control" asp-items="ViewBag.CategoriaId"></select>
+            <div class="form-group d-flex align-items-center">
+                <div style="flex:1;">
+                    <label asp-for="CategoriaId" class="control-label"></label>
+                    <select asp-for="CategoriaId" class="form-control" asp-items="ViewBag.CategoriaId"></select>
+                </div>
+                <a asp-controller="Categorias" asp-action="Create" class="btn btn-outline-primary ml-2" style="margin-left:10px;">Crear nueva categoría</a>
             </div>
             <div class="form-group">
-                <label asp-for="MiembroId" class="control-label"></label>
-                <select asp-for="MiembroId" class ="form-control" asp-items="ViewBag.MiembroId"></select>
+                <input type="hidden" asp-for="MiembroId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+                <p><strong>Miembro:</strong> @User.Identity.Name</p>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -44,7 +47,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Volver atras</a>
 </div>
 
 @section Scripts {

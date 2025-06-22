@@ -2,32 +2,93 @@
 
 @{
     ViewData["Title"] = "Categorías";
+    var categoriasOrdenadas = Model.OrderBy(c => c.Nombre).ToList();
+    bool estaAutenticado = ViewBag.EstaAutenticado ?? false;
+    var returnUrl = Url.Action("Index", "categorias");
 }
 
-<h1>@ViewData["Title"]</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.First().Nombre)</th>
-            <th style="width: 180px;">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="foro-main-wrapper">
+    <div class="foro-main-content">
+        <aside class="foro-sidebar">
+            <div class="foro-sidebar-box">
+                <h2>
+                    <a asp-controller="categorias" asp-action="Index" style="color: inherit; text-decoration: inherit;">
+                        CATEGORÍAS
+                    </a>
+                </h2>
+                <ul>
+                    @foreach (var cat in categoriasOrdenadas)
+                    {
+                        <li>
+                            <span class="sidebar-dot"></span>
+                            @cat.Nombre
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="foro-description-card">
+                <strong>¿Qué son las categorías?</strong>
+                <p>
+                    Las categorías te permiten organizar y descubrir temas de interés dentro de la comunidad. ¡Explora o crea una nueva!
+                </p>
+            </div>
+        </aside>
+        <main class="foro-content-area">
+            <div class="foro-categorias-header">
+                <h2 style="margin: 0;">Categorías</h2>
+                @if (estaAutenticado)
+                {
+                    <a asp-action="Create" class="foro-navbar-btn-primary">
+                        Crear nueva categoría
+                    </a>
+                }
+                else
+                {
+                    <a href="@Url.Action("IniciarSesion", "Account", new { returnUrl = returnUrl })" class="foro-navbar-btn-primary">
+                        Crear nueva categoría
+                    </a>
+                }
+            </div>
+            @foreach (var cat in categoriasOrdenadas)
+            {
+                <div class="foro-categoria-card">
+                    <span class="sidebar-dot"></span>
+                    <span class="foro-categoria-nombre">@cat.Nombre</span>
+                </div>
+            }
+        </main>
+        <aside class="foro-sidebar-right">
+            <div class="foro-sidebar-box">
+                <h2>CATEGORÍAS POPULARES</h2>
+                <ul>
+                    @foreach (var cat in categoriasOrdenadas.Take(5))
+                    {
+                        <li>
+                            <span class="sidebar-dot"></span>
+                            @cat.Nombre
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="foro-sidebar-box">
+                <h2>
+                    <a asp-controller="miembros" asp-action="Index" style="color: inherit; text-decoration: inherit;">
+                        USUARIOS POPULARES
+                    </a>
+                </h2>
+                <ul>
+                    @if (ViewBag.TopMiembros != null)
+                    {
+                        foreach (var user in ViewBag.TopMiembros)
+                        {
+                            <li>
+                                <span class="user-avatar">👤</span>
+                                @user.UserName
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>

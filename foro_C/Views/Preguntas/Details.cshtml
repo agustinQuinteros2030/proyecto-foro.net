@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Details";
+    var currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
 }
 
 <h1>Details</h1>
@@ -43,6 +44,16 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    @if (Model.Activa && Model.MiembroId != currentUserId)
+    {
+        <a asp-controller="Respuestas" asp-action="Create" asp-route-preguntaId="@Model.Id" class="btn btn-primary">Responder</a>
+    }
+    else
+    {
+        <button class="btn btn-primary" disabled>No puedes responder</button>
+    }
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> 
     <a asp-action="Index">Back to List</a>
 </div>
