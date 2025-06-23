@@ -155,7 +155,7 @@ namespace foro_C.Controllers
                             throw;
                         }
                     }
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Index", "Home");
                 }
                 return View(miembroFormulario);
             }
@@ -279,6 +279,40 @@ namespace foro_C.Controllers
             return View(miembro);
         }
 
+        [Authorize]
+
+        public async Task<IActionResult> Historial(int id)
+        {
+            var miembro = await _context.Miembros
+      .Include(m => m.Entradas)
+      .Include(m => m.Preguntas)
+          .ThenInclude(p => p.Entrada)
+      .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (miembro == null)
+            {
+                return NotFound();
+            }
+
+            // Verifica si el usuario actual es dueño del perfil o es administrador
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != miembro.Id.ToString() && !User.IsInRole("Administrador"))
+            {
+                return Forbid(); // o RedirectToAction("AccessDenied", "Account");
+            }
+
+            return View(miembro);
+
+        }
+
+
+
     }
+
+
+
+
+
+
+
 }
 

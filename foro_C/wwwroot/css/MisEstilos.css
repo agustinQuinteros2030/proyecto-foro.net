@@ -280,3 +280,36 @@ h2 {
     width: 100%;
     box-sizing: border-box;
 }
+
+.foro-footer {
+    background: #181a1b;
+    color: #b3bfc6;
+    padding: 2rem 1rem;
+    text-align: center;
+    width: 100%;
+    margin-top: 2rem;
+    border-top: 1px solid #333;
+}
+
+.foro-footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+    .foro-footer-links a {
+        color: #aaa;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .foro-footer-links a:hover {
+            color: #f97316;
+        }
+
+
+.container {
+    padding-top: 100px;
+}

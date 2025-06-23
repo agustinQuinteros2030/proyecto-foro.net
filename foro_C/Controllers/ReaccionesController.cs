@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace foro_C.Controllers
@@ -81,20 +82,21 @@ namespace foro_C.Controllers
         [Authorize(Roles = "Miembro,Administrador")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var reaccion = await _context.Reacciones.FindAsync(id);
-            if (reaccion == null)
-            {
-                return NotFound();
-            }
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", reaccion.MiembroId);
-            ViewData["RespuestaId"] = new SelectList(_context.Respuestas, "Id", "Texto", reaccion.RespuestaId);
+            var reaccion = await _context.Reacciones
+                .Include(r => r.Miembro)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reaccion == null) return NotFound();
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (reaccion.MiembroId != userId)
+                return Forbid(); // o RedirectToAction("Index")
+
             return View(reaccion);
         }
+        
 
         // POST: Reacciones/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -102,12 +104,26 @@ namespace foro_C.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Miembro,Administrador")]
-        public async Task<IActionResult> Edit(int id, [Bind("Tipo,RespuestaId,Id,Fecha,Texto,MiembroId")] Reaccion reaccion)
+
+        public async Task<IActionResult> Edit(int id, [Bind("Tipo,RespuestaId,Id,Fecha,Texto")] Reaccion reaccion)
         {
             if (id != reaccion.Id)
-            {
                 return NotFound();
-            }
+
+            var reaccionOriginal = await _context.Reacciones.AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reaccionOriginal == null)
+                return NotFound();
+
+            // Seguridad: solo el autor puede editar
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            if (reaccionOriginal.MiembroId != userId)
+                return Forbid();
+
+            // Preservamos campos que no deben cambiar
+            reaccion.MiembroId = reaccionOriginal.MiembroId;
+            reaccion.Fecha = reaccionOriginal.Fecha;
 
             if (ModelState.IsValid)
             {
@@ -115,24 +131,21 @@ namespace foro_C.Controllers
                 {
                     _context.Update(reaccion);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!ReaccionExists(reaccion.Id))
-                    {
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", reaccion.MiembroId);
-            ViewData["RespuestaId"] = new SelectList(_context.Respuestas, "Id", "Texto", reaccion.RespuestaId);
+
+            // No volvemos a mostrar dropdowns si son innecesarios
             return View(reaccion);
         }
+
 
         // GET: Reacciones/Delete/5
         [Authorize(Roles = "Miembro,Administrador")]

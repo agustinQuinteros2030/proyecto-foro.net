@@ -9,43 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/foro_C.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/MisEstilos.css" asp-append-version="true" />
-    <style>
-        /* Layout básico para sticky footer con flexbox */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .page-container {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            min-height: 0; /* importante para que el flex funcione bien */
-        }
-
-        .container-main {
-            flex: 1 0 auto; /* que el main crezca y ocupe el espacio disponible */
-            overflow-y: auto; /* scrolleo solo en contenido */
-            padding-bottom: 1rem; /* margen para que no quede pegado al footer */
-        }
-
-        .foro-footer {
-            flex-shrink: 0; /* footer no se encoge */
-            background: #181a1b;
-            color: #b3bfc6;
-            padding: 1.5rem 0;
-            text-align: center;
-            width: 100%;
-            box-sizing: border-box;
-        }
-    </style>
+ 
 </head>
 <body>
     <div class="page-container">
@@ -114,16 +78,7 @@
             </main>
         </div>
 
-        <footer class="foro-footer border-top footer text-muted">
-            <div class="container foro-footer-links">
-                <a asp-area="" asp-controller="Policies" asp-action="Rules">Reglas de foro_C</a>
-                <a asp-area="" asp-controller="Policies" asp-action="Privacy">Política de privacidad</a>
-                <a asp-area="" asp-controller="Policies" asp-action="UserAgreement">Acuerdo del usuario</a>
-            </div>
-            <div class="foro-footer-copyright">
-                foro_C, Inc. © 2025. Todos los derechos reservados.
-            </div>
-        </footer>
+      
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
