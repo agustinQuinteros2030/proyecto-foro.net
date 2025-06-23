@@ -18,7 +18,7 @@ namespace foro_C.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Últimas 5 entradas
+            // ï¿½ltimas 5 entradas
             ViewBag.UltimasEntradas = await _context.Entradas
                 .Include(e => e.Miembro)
                 .Include(e => e.Categoria)
@@ -38,7 +38,7 @@ namespace foro_C.Controllers
                 })
                 .ToListAsync();
 
-            // Top 5 entradas con más preguntas y respuestas
+            // Top 5 entradas con mï¿½s preguntas y respuestas
             ViewBag.TopEntradasPregResp = await _context.Entradas
                 .Include(e => e.Miembro)
                 .Include(e => e.Categoria)
@@ -58,7 +58,7 @@ namespace foro_C.Controllers
                 })
                 .ToListAsync();
 
-            // Top 3 miembros con más entradas en el último mes
+            // Top 3 miembros con mï¿½s entradas en el ï¿½ltimo mes
             var haceUnMes = DateTime.Now.AddMonths(-1);
             ViewBag.TopMiembrosMes = await _context.Miembros
                 .Select(m => new

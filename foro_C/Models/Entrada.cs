@@ -20,7 +20,14 @@ namespace foro_C.Models
         public string Texto { get; set; }
 
         [StringLength(200, ErrorMessage = ErrorMsgs.longitudValida)]
-        public string Resumen { get; set; }
+        public string Resumen
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Texto)) return string.Empty;
+                return Texto.Length > 200 ? Texto.Substring(0, 200) + "..." : Texto;
+            }
+        }
 
         public string Imagen { get; set; }
 

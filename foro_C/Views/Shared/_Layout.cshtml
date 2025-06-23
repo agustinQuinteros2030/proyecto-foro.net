@@ -9,88 +9,123 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/foro_C.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/MisEstilos.css" asp-append-version="true" />
+    <style>
+        /* Layout básico para sticky footer con flexbox */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            min-height: 0; /* importante para que el flex funcione bien */
+        }
+
+        .container-main {
+            flex: 1 0 auto; /* que el main crezca y ocupe el espacio disponible */
+            overflow-y: auto; /* scrolleo solo en contenido */
+            padding-bottom: 1rem; /* margen para que no quede pegado al footer */
+        }
+
+        .foro-footer {
+            flex-shrink: 0; /* footer no se encoge */
+            background: #181a1b;
+            color: #b3bfc6;
+            padding: 1.5rem 0;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light  border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                     <form class="foro-navbar-search" method="get"  asp-controller="Entradas" asp-action="Buscar">
-                         <input type="search" placeholder="Buscar en foro_C" name="q" />
-                          <button type="submit">🔍</button>
-                      </form>
+    <div class="page-container">
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light  border-bottom box-shadow mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <form class="foro-navbar-search" method="get" asp-controller="Entradas" asp-action="Buscar">
+                        <input type="search" placeholder="Buscar en foro_C" name="q" />
+                        <button type="submit">🔍</button>
+                    </form>
                     <div class="foro-navbar-actions">
-                    <ul class="navbar-nav ms-auto">
-                        @if (signInManager.IsSignedIn(User))
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link text-white">Hola, @User.Identity.Name</span>
-                            </li>
-
-                            @if (User.IsInRole("Miembro") )
-                            {
-
-                                <li class="nav-item">
-                                    <a class="nav-link text-white" asp-controller="Miembros" asp-action="MiPerfil">Mi Perfil</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-white" asp-controller="Entradas" asp-action="Create">Crear entrada</a>
-                                </li>
-                            }
-
-                            @if (User.IsInRole("Administrador"))
+                        <ul class="navbar-nav ms-auto">
+                            @if (signInManager.IsSignedIn(User))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-white" asp-controller="Admin" asp-action="PanelAdmin">Panel  Administracion</a>
+                                    <span class="nav-link text-white">Hola, @User.Identity.Name</span>
+                                </li>
+
+                                @if (User.IsInRole("Miembro"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white" asp-controller="Miembros" asp-action="MiPerfil">Mi Perfil</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white" asp-controller="Entradas" asp-action="Create">Crear entrada</a>
+                                    </li>
+                                }
+
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white" asp-controller="Admin" asp-action="PanelAdmin">Panel  Administracion</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white" asp-controller="Empleados" asp-action="MiPerfil">Mi Perfil</a>
+                                    </li>
+                                }
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" asp-controller="Account" asp-action="CerrarSesion">Cerrar sesión</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="foro-navbar-btn-primary" asp-controller="Account" asp-action="Registrar">Registrarse</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-white" asp-controller="Empleados" asp-action="MiPerfil">Mi Perfil</a>
+                                    <a class="foro-navbar-btn-primary" asp-controller="Account" asp-action="IniciarSesion">Iniciar sesión</a>
                                 </li>
-
-                               
                             }
-
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-controller="Account" asp-action="CerrarSesion">Cerrar sesión</a>
-                            </li>
-                        }
-                        else
-                        {
-                          
-                            <li class="nav-item">
-                                <a class="foro-navbar-btn-primary" asp-controller="Account" asp-action="Registrar">Registrarse</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="foro-navbar-btn-primary" asp-controller="Account" asp-action="IniciarSesion">Iniciar sesión</a>
-                            </li>
-                        }
-                    </ul>
-                   
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </header>
 
-    <div class="container-main mt-4">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        <div class="container-main mt-4">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="foro-footer border-top footer text-muted">
+            <div class="container foro-footer-links">
+                <a asp-area="" asp-controller="Policies" asp-action="Rules">Reglas de foro_C</a>
+                <a asp-area="" asp-controller="Policies" asp-action="Privacy">Política de privacidad</a>
+                <a asp-area="" asp-controller="Policies" asp-action="UserAgreement">Acuerdo del usuario</a>
+            </div>
+            <div class="foro-footer-copyright">
+                foro_C, Inc. © 2025. Todos los derechos reservados.
+            </div>
+        </footer>
     </div>
 
-       <footer class="foro-footer border-top footer text-muted">
-        <div class="container foro-footer-links">
-            <a  asp-area="" asp-controller="Policies" asp-action="Rules">Reglas de foro_C</a>
-            <a asp-area="" asp-controller="Policies" asp-action="Privacy">Política de privacidad</a>
-            <a asp-area="" asp-controller="Policies" asp-action="UserAgreement">Acuerdo del usuario</a>
-        </div>
-              <div class="foro-footer-copyright">
-            foro_C, Inc. © 2025. Todos los derechos reservados.
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

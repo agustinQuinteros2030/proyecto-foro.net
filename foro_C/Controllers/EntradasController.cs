@@ -93,6 +93,7 @@ namespace foro_C.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
         // =========================================
         // EDITAR
         // =========================================
@@ -116,6 +117,7 @@ namespace foro_C.Controllers
         [Authorize(Roles = "Miembro,Administrador")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Texto,Privada,CategoriaId")] Entrada entrada)
         {
+      
             if (id != entrada.Id) return NotFound();
 
             var entradaOriginal = await _context.Entradas.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
@@ -125,7 +127,7 @@ namespace foro_C.Controllers
                 return Forbid();
 
             entrada.MiembroId = entradaOriginal.MiembroId; // evitar cambio forzado
-            entrada.Fecha = entradaOriginal.Fecha;     // preservar fecha original
+            entrada.Fecha = entradaOriginal.Fecha;         // preservar fecha original
 
             if (!ModelState.IsValid)
             {
@@ -138,7 +140,7 @@ namespace foro_C.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-       
+
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {

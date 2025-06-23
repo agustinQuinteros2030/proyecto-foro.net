@@ -12,7 +12,7 @@ namespace foro_C.Controllers
 {
     [Authorize(Roles = "Administrador,Miembro")]
     public class MiembrosController : Controller
-       
+
 
     {
         private readonly ForoContext _context;
@@ -88,7 +88,7 @@ namespace foro_C.Controllers
                 if (miembro == null) return NotFound();
 
                 // Validamos que el usuario logueado sea el dueño del perfil
-                if (miembro.Id.ToString() != usuarioLogueadoId )
+                if (miembro.Id.ToString() != usuarioLogueadoId)
                 {
                     return RedirectToAction("AccesoDenegado", "Account");
                 }
@@ -104,14 +104,15 @@ namespace foro_C.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Nombre,Apellido,FechaAlta,Email,DireccionID,Telefono")] Miembro miembroFormulario)
 
-        { if (id != miembroFormulario.Id) return NotFound();
+        {
+            if (id != miembroFormulario.Id) return NotFound();
 
-        var usuarioLogueadoId = userManager.GetUserId(User);
+            var usuarioLogueadoId = userManager.GetUserId(User);
 
-    if (miembroFormulario.Id.ToString() != usuarioLogueadoId && !User.IsInRole("Administrador"))
-    {
-        return RedirectToAction("AccesoDenegado", "Account");
-    }
+            if (miembroFormulario.Id.ToString() != usuarioLogueadoId && !User.IsInRole("Administrador"))
+            {
+                return RedirectToAction("AccesoDenegado", "Account");
+            }
             {
                 if (id != miembroFormulario.Id)
                 {
@@ -201,29 +202,29 @@ namespace foro_C.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
-           
-                if (id == null || id <= 0)
-                {
-                    return NotFound();
-                }
 
-                var miembro = await _context.Miembros.FirstOrDefaultAsync(m => m.Id == id);
-                if (miembro == null)
-                {
-                    return NotFound();
-                }
-
-                var usuarioLogueadoId = userManager.GetUserId(User); // string
-
-                // Validar que solo se pueda acceder si sos el dueño del perfil o un admin
-                if (miembro.Id.ToString() != usuarioLogueadoId && !User.IsInRole("Administrador"))
-                {
-                    return RedirectToAction("AccesoDenegado", "Account");
-                }
-
-                return View(miembro);
+            if (id == null || id <= 0)
+            {
+                return NotFound();
             }
-        
+
+            var miembro = await _context.Miembros.FirstOrDefaultAsync(m => m.Id == id);
+            if (miembro == null)
+            {
+                return NotFound();
+            }
+
+            var usuarioLogueadoId = userManager.GetUserId(User); // string
+
+            // Validar que solo se pueda acceder si sos el dueño del perfil o un admin
+            if (miembro.Id.ToString() != usuarioLogueadoId && !User.IsInRole("Administrador"))
+            {
+                return RedirectToAction("AccesoDenegado", "Account");
+            }
+
+            return View(miembro);
+        }
+
 
         // POST: Miembros/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -234,7 +235,7 @@ namespace foro_C.Controllers
 
             if (id <= 0) return NotFound();
 
-            var usuarioLogueadoId = userManager.GetUserId(User); 
+            var usuarioLogueadoId = userManager.GetUserId(User);
             var miembro = await _context.Miembros.FindAsync(id);
 
             if (miembro == null) return NotFound();
@@ -261,17 +262,23 @@ namespace foro_C.Controllers
         [Authorize]
         public async Task<IActionResult> MiPerfil()
         {
-        
+
            
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        
+            var userId = userManager.GetUserId(User); // devuelve string
 
-                var miembro = await _context.Miembros
-                    .FirstOrDefaultAsync(m => m.Id == userId);
+            var miembro = await _context.Miembros
+                .Include(m => m.Entradas)
+                .Include(m => m.Preguntas)
+                .ThenInclude(p => p.Entrada)
+              .FirstOrDefaultAsync(m => m.UserName == User.Identity.Name);
 
-                if (miembro == null)
-                    return NotFound();
+            if (miembro == null)
+                return NotFound();
 
-                return View("MiPerfil", miembro);
-            }
+            return View(miembro);
+        }
+
     }
 }
+
