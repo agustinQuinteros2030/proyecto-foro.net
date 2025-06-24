@@ -18,12 +18,14 @@ namespace foro_C.Controllers
         private readonly ForoContext _context;
         private readonly RoleManager<Rol> roleManager;
         private readonly UserManager<Persona> userManager;
+        private readonly SignInManager<Persona> _signInManager;
 
-        public MiembrosController(ForoContext context, UserManager<Persona> userManager, RoleManager<Rol> roleManager)
+        public MiembrosController(ForoContext context, UserManager<Persona> userManager, RoleManager<Rol> roleManager, SignInManager<Persona> signInManager)
         {
             _context = context;
             this.userManager = userManager;
             this.roleManager = roleManager;
+            _signInManager = signInManager;
         }
 
         // GET: Miembros
@@ -79,22 +81,19 @@ namespace foro_C.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
+            if (id == null) return NotFound();
+
+            var usuarioLogueadoId = userManager.GetUserId(User); // string
+            var miembro = await _context.Miembros.FindAsync(id);
+
+            if (miembro == null) return NotFound();
+
+            if (miembro.Id.ToString() != usuarioLogueadoId)
             {
-                if (id == null) return NotFound();
-
-                var usuarioLogueadoId = userManager.GetUserId(User); // id string
-                var miembro = await _context.Miembros.FindAsync(id);
-
-                if (miembro == null) return NotFound();
-
-                // Validamos que el usuario logueado sea el dueño del perfil
-                if (miembro.Id.ToString() != usuarioLogueadoId)
-                {
-                    return RedirectToAction("AccesoDenegado", "Account");
-                }
-
-                return View(miembro);
+                return RedirectToAction("AccesoDenegado", "Account");
             }
+
+            return View(miembro);
         }
 
         // POST: Miembros/Edit/5
@@ -102,8 +101,10 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Nombre,Apellido,FechaAlta,Email,DireccionID,Telefono")] Miembro miembroFormulario)
+        [HttpPost]
 
+      
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Nombre,Apellido,FechaAlta,Email,DireccionID,Telefono")] Miembro miembroFormulario)
         {
             if (id != miembroFormulario.Id) return NotFound();
 
@@ -113,53 +114,51 @@ namespace foro_C.Controllers
             {
                 return RedirectToAction("AccesoDenegado", "Account");
             }
+
+            if (ModelState.IsValid)
             {
-                if (id != miembroFormulario.Id)
+                try
                 {
-                    return NotFound();
-                }
+                    var miembroEnDb = await _context.Miembros.FindAsync(id);
+                    if (miembroEnDb == null) return NotFound();
 
-                if (ModelState.IsValid)
-                {
-                    try
+                    // Actualizar datos
+                    miembroEnDb.UserName = miembroFormulario.UserName;
+                    miembroEnDb.Nombre = miembroFormulario.Nombre;
+                    miembroEnDb.Apellido = miembroFormulario.Apellido;
+                    miembroEnDb.Telefono = miembroFormulario.Telefono;
+
+                    if (!ActualizarEmail(miembroFormulario, miembroEnDb))
                     {
-                        var miembroEnDb = await _context.Miembros.FindAsync(id);
-
-                        if (miembroEnDb == null)
-                        {
-                            return NotFound();
-                        }
-                        miembroEnDb.Id = miembroFormulario.Id;
-                        miembroEnDb.UserName = miembroFormulario.UserName;
-                        miembroEnDb.Nombre = miembroFormulario.Nombre;
-                        miembroEnDb.Apellido = miembroFormulario.Apellido;
-                        miembroEnDb.Telefono = miembroFormulario.Telefono;
-
-                        if (!ActualizarEmail(miembroFormulario, miembroEnDb))
-                        {
-                            ModelState.AddModelError("Email", "El email ya está en uso por otro usuario.");
-                            return View(miembroFormulario);
-                        }
-
-                        _context.Update(miembroEnDb);
-                        await _context.SaveChangesAsync();
+                        ModelState.AddModelError("Email", "El email ya está en uso por otro usuario.");
+                        return View(miembroFormulario);
                     }
-                    catch (DbUpdateConcurrencyException)
+
+                    _context.Update(miembroEnDb);
+                    await _context.SaveChangesAsync();
+
+                    // 🔄 Actualizar sesión (claims) si cambió UserName o Email
+                    if (miembroEnDb.UserName != User.Identity?.Name ||
+                        miembroEnDb.Email != User.FindFirstValue(ClaimTypes.Email))
                     {
-                        if (!MiembroExists(miembroFormulario.Id))
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        await _signInManager.RefreshSignInAsync(miembroEnDb);
                     }
+
                     return RedirectToAction("Index", "Home");
                 }
-                return View(miembroFormulario);
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MiembroExists(miembroFormulario.Id))
+                        return NotFound();
+                    else
+                        throw;
+                }
             }
+
+            return View(miembroFormulario);
         }
+
+
         [Authorize]
         private bool ActualizarEmail(Miembro miembroFormulario, Miembro emailActual)
         {

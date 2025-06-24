@@ -9,6 +9,7 @@ using System.Linq;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace foro_C.Controllers
 {
@@ -76,6 +77,7 @@ namespace foro_C.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Miembro")]
+        
         public async Task<IActionResult> Create([Bind("Titulo,Texto,Privada,CategoriaId")] Entrada entrada)
         {
             if (!ModelState.IsValid)
@@ -85,13 +87,15 @@ namespace foro_C.Controllers
             }
 
             entrada.Fecha = DateTime.UtcNow;
-            entrada.Privada = true;
             entrada.MiembroId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+           
 
             _context.Add(entrada);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction("Index", "Home"); // ✅ Te lleva al inicio
         }
+
 
 
         // =========================================
@@ -185,7 +189,36 @@ namespace foro_C.Controllers
             var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             return _context.Habilitaciones.Any(h => h.EntradaId == entrada.Id && h.MiembroId == currentUserId);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> BuscarSugerencias(string q)
+        {
+            if (string.IsNullOrWhiteSpace(q)) return Json(new List<object>());
+
+            var resultados = await _context.Entradas
+                .Where(e => e.Titulo.Contains(q))
+                .OrderByDescending(e => e.Fecha)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Titulo
+                })
+                .Take(5)
+                .ToListAsync();
+
+            return Json(resultados);
+        }
+
+
+
     }
+
+
+
+
+
+
 }
 
 

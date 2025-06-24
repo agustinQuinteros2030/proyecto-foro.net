@@ -28,12 +28,20 @@
             <div class="d-flex justify-content-start gap-2 mt-4">
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <a asp-controller="Preguntas" asp-action="Create" asp-route-entradaId="@Model.Id" class="btn btn-outline-primary">💬 Hacer una pregunta</a>
+                    <a asp-controller="Respuestas" asp-action="Create" asp-route-entradaId="@Model.Id" class="btn btn-outline-primary">
+                        💬 Responder
+                    </a>
 
                     <form asp-controller="Reacciones" asp-action="Reaccionar" method="post">
                         <input type="hidden" name="entradaId" value="@Model.Id" />
                         <input type="hidden" name="accion" value="agregar" />
                         <button type="submit" class="btn btn-outline-success">❤️ Me gusta</button>
+                    </form>
+
+                    <form asp-controller="Reacciones" asp-action="Reaccionar" method="post">
+                        <input type="hidden" name="entradaId" value="@Model.Id" />
+                        <input type="hidden" name="accion" value="quitar" />
+                        <button type="submit" class="btn btn-outline-danger">💔 No me gusta</button>
                     </form>
                 }
                 else
@@ -45,15 +53,15 @@
 
             <div class="mt-5">
                 <h5>🧵 Respuestas:</h5>
-                @if (Model.Preguntas != null && Model.Preguntas.Any())
+                @if (Model.Respuestas != null && Model.Respuestas.Any())
                 {
                     <ul class="list-group">
-                        @foreach (var p in Model.Preguntas)
+                        @foreach (var r in Model.Respuestas)
                         {
                             <li class="list-group-item">
-                                <strong>@p.Miembro?.Nombre:</strong> @p.Texto
+                                <strong>@r.Miembro?.Nombre:</strong> @r.Texto
                                 <br />
-                                <small class="text-muted">📅 @p.Fecha.ToString("dd/MM/yyyy")</small>
+                                <small class="text-muted">📅 @r.Fecha.ToString("dd/MM/yyyy")</small>
                             </li>
                         }
                     </ul>

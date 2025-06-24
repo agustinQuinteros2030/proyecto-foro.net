@@ -1,55 +1,61 @@
 ﻿@model foro_C.Models.Entrada
-
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Entrada";
 }
 
-<h1>Create</h1>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white rounded-top-4">
+            <h3 class="mb-0"><i class="bi bi-pencil-square"></i> Nueva Entrada</h3>
+        </div>
 
-<h4>Entrada</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-           
-            <div class="form-group">
-                <label asp-for="Titulo" class="control-label"></label>
-                <input asp-for="Titulo" class="form-control" />
-                <span asp-validation-for="Titulo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Texto" class="control-label"></label>
-                <input asp-for="Texto" class="form-control" />
-                <span asp-validation-for="Texto" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Privada" /> @Html.DisplayNameFor(model => model.Privada)
-                </label>
-            </div>
-            <div class="form-group d-flex align-items-center">
-                <div style="flex:1;">
-                    <label asp-for="CategoriaId" class="control-label"></label>
-                    <select asp-for="CategoriaId" class="form-control" asp-items="ViewBag.CategoriaId"></select>
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Titulo" class="form-label fw-bold">📌 Título</label>
+                    <input asp-for="Titulo" class="form-control" placeholder="Ej: ¿Cómo uso Entity Framework?" />
+                    <span asp-validation-for="Titulo" class="text-danger"></span>
                 </div>
-                <a asp-controller="Categorias" asp-action="Create" class="btn btn-outline-primary ml-2" style="margin-left:10px;">Crear nueva categoría</a>
-            </div>
-            <div class="form-group">
-                <input type="hidden" asp-for="MiembroId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
-                <p><strong>Miembro:</strong> @User.Identity.Name</p>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+
+                <div class="mb-3">
+                    <label asp-for="Texto" class="form-label fw-bold">📝 Texto</label>
+                    <textarea asp-for="Texto" class="form-control" rows="6" placeholder="Contá en detalle tu duda o tema..."></textarea>
+                    <span asp-validation-for="Texto" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CategoriaId" class="form-label fw-bold">🏷️ Categoría</label>
+                    <select asp-for="CategoriaId" class="form-select" asp-items="ViewBag.CategoriaId">
+                        <option value="">-- Seleccioná una categoría --</option>
+                    </select>
+                    <span asp-validation-for="CategoriaId" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" asp-for="Privada" type="checkbox" />
+                    <label class="form-check-label" asp-for="Privada">
+                        Entrada privada (sólo visible para vos y admins)
+                    </label>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-upload"></i> Publicar Entrada
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Volver atras</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+

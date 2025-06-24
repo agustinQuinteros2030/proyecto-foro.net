@@ -19,6 +19,38 @@ h2 {
     font-weight: 600;
 }
 
+
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1f1f1f;
+    border: 1px solid #444;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none; /* Por defecto oculto */
+    color: #eee;
+    cursor: pointer;
+}
+
+    .search-dropdown div {
+        padding: 8px 12px;
+    }
+
+        .search-dropdown div:hover {
+            background: #f97316;
+            color: #000;
+        }
+
+
+
+
+
+
+
+
 /* Navbar */
 .navbar {
     display: flex;

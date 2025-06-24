@@ -194,27 +194,31 @@ namespace foro_C.Controllers
         [Authorize]
         public async Task<IActionResult> Reaccionar(int entradaId, string accion)
         {
-            // Obtener el usuario actual
             var userName = User.Identity.Name;
             var miembro = await _context.Miembros.FirstOrDefaultAsync(m => m.UserName == userName);
             if (miembro == null)
-                return Json(new { success = false, mensaje = "Usuario no encontrado" });
+            {
+                TempData["Error"] = "Usuario no encontrado.";
+                return RedirectToAction("Details", "Entradas", new { id = entradaId });
+            }
 
-            // Obtener la entrada
-            var entrada = await _context.Entradas.Include(e => e.Miembro).FirstOrDefaultAsync(e => e.Id == entradaId);
+            var entrada = await _context.Entradas
+                .Include(e => e.Miembro)
+                .FirstOrDefaultAsync(e => e.Id == entradaId);
             if (entrada == null)
-                return Json(new { success = false, mensaje = "Entrada no encontrada" });
+            {
+                TempData["Error"] = "Entrada no encontrada.";
+                return RedirectToAction("Index", "Entradas");
+            }
 
-            // Validar si la entrada es privada o está deshabilitada
-            if (entrada.Privada)
-                return Json(new { success = false, mensaje = "No puedes reaccionar a una entrada privada." });
+            if (entrada.Privada || !entrada.Activa || entrada.Estado != EstadoEntrada.Publicada)
+            {
+                TempData["Error"] = "No puedes reaccionar a esta entrada.";
+                return RedirectToAction("Details", "Entradas", new { id = entradaId });
+            }
 
-            if (!entrada.Activa || entrada.Estado != EstadoEntrada.Publicada)
-                return Json(new { success = false, mensaje = "No puedes reaccionar a una entrada deshabilitada." });
-
-            // Buscar si ya existe una reacción de este usuario para esta entrada
             var reaccion = await _context.Reacciones
-                .FirstOrDefaultAsync(r => r.MiembroId == miembro.Id && r.RespuestaId == entradaId);
+                .FirstOrDefaultAsync(r => r.MiembroId == miembro.Id && r.RespuestaId == entradaId); // <- revisá si debería ser EntradaId
 
             if (accion == "agregar")
             {
@@ -223,7 +227,7 @@ namespace foro_C.Controllers
                     reaccion = new Reaccion
                     {
                         MiembroId = miembro.Id,
-                        RespuestaId = entradaId, // Ajusta si tienes una propiedad específica para EntradaId
+                        RespuestaId = entradaId, // o EntradaId si corresponde
                         Tipo = TipoReaccion.MeGusta
                     };
                     _context.Reacciones.Add(reaccion);
@@ -239,9 +243,8 @@ namespace foro_C.Controllers
                 }
             }
 
-            var nuevaCantidad = await _context.Reacciones.CountAsync(r => r.RespuestaId == entradaId);
-
-            return Json(new { success = true, nuevaCantidad });
+            // Redirigimos de vuelta a la vista de detalles
+            return RedirectToAction("Details", "Entradas", new { id = entradaId });
         }
     }
 }
