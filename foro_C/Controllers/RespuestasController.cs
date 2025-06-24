@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,11 +21,20 @@ namespace foro_C.Controllers
 
         // GET: Respuestas
         [AllowAnonymous]
+        
+   
         public async Task<IActionResult> Index()
         {
-            var foroContext = _context.Respuestas.Include(r => r.Miembro).Include(r => r.Pregunta);
-            return View(await foroContext.ToListAsync());
+            var respuestas = await _context.Respuestas
+                .AsNoTracking()
+                .Include(r => r.Miembro)
+                .Include(r => r.Pregunta)
+                    .ThenInclude(p => p.Entrada)
+                .ToListAsync();
+
+            return View(respuestas);
         }
+
 
         // GET: Respuestas/Details/5
         [AllowAnonymous]
@@ -48,31 +58,48 @@ namespace foro_C.Controllers
         }
 
         // GET: Respuestas/Create
-        public IActionResult Create()
+        public IActionResult Create(int entradaId)
         {
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido");
-            ViewData["PreguntaId"] = new SelectList(_context.Preguntas, "Id", "Texto");
+            var preguntas = _context.Preguntas.Where(p => p.EntradaId == entradaId).ToList();
+            ViewData["PreguntaId"] = new SelectList(preguntas, "Id", "Texto");
+            ViewBag.EntradaId = entradaId;
             return View();
         }
 
-        // POST: Respuestas/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Miembro,Administrador")]
-        public async Task<IActionResult> Create([Bind("PreguntaId,Id,Texto,MiembroId")] Respuesta respuesta)
+        public async Task<IActionResult> Create([Bind("PreguntaId,Texto")] Respuesta respuesta)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(respuesta);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var entradaId = _context.Preguntas
+                                  .Where(pq => pq.Id == respuesta.PreguntaId)
+                                  .Select(pq => pq.EntradaId)
+                                  .FirstOrDefault();
+
+                var preguntas = _context.Preguntas.Where(p => p.EntradaId == entradaId).ToList();
+                ViewData["PreguntaId"] = new SelectList(preguntas, "Id", "Texto", respuesta.PreguntaId);
+                return View(respuesta);
             }
-            ViewData["MiembroId"] = new SelectList(_context.Miembros, "Id", "Apellido", respuesta.MiembroId);
-            ViewData["PreguntaId"] = new SelectList(_context.Preguntas, "Id", "Texto", respuesta.PreguntaId);
-            return View(respuesta);
+
+            var userName = User.Identity.Name;
+            var miembro = await _context.Miembros.FirstOrDefaultAsync(m => m.UserName == userName);
+            if (miembro == null) return Unauthorized();
+
+            respuesta.MiembroId = miembro.Id;
+            respuesta.Fecha = DateTime.Now;
+
+            _context.Add(respuesta);
+            await _context.SaveChangesAsync();
+
+            var pregunta = await _context.Preguntas.FirstOrDefaultAsync(p => p.Id == respuesta.PreguntaId);
+            if (pregunta == null) return RedirectToAction("Index", "Entradas");
+
+            return RedirectToAction("Details", "Entradas", new { id = pregunta.EntradaId });
         }
+
 
         // GET: Respuestas/Edit/5
         [Authorize(Roles = "Miembro,Administrador")]

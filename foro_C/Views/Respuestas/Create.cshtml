@@ -1,24 +1,25 @@
 ﻿@model foro_C.Models.Respuesta
 
+
+
 @{
-    ViewData["Title"] = "Responder Entrada";
+    ViewData["Title"] = "Crear Respuesta";
+    var preguntaItems = (SelectList)ViewData["PreguntaId"];
 }
 
-<h2>Responder Entrada</h2>
-
-<form asp-action="Create" asp-route-entradaId="@ViewBag.EntradaId" method="post">
+<form asp-action="Create" method="post">
     <div class="mb-3">
-        <label asp-for="Texto" class="form-label">Tu respuesta</label>
-        <textarea asp-for="Texto" class="form-control" rows="4"></textarea>
+        <label>Pregunta a responder</label>
+        <select asp-for="PreguntaId" asp-items="preguntaItems" class="form-select"></select>
+    </div>
+
+    <div class="mb-3">
+        <label>Respuesta</label>
+        <textarea asp-for="Texto" class="form-control"></textarea>
         <span asp-validation-for="Texto" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Enviar Respuesta</button>
-    <a asp-controller="Entradas" asp-action="Details" asp-route-id="@ViewBag.EntradaId" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary">Enviar respuesta</button>
 </form>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+

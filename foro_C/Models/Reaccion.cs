@@ -10,5 +10,7 @@
         //Propiedad navegacional
         public Respuesta Respuesta { get; set; }
 
+        
+
     }
 }

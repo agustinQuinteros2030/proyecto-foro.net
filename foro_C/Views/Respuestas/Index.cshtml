@@ -1,40 +1,46 @@
 ﻿@model IEnumerable<foro_C.Models.Respuesta>
-
 @{
-    ViewData["Title"] = "Respuestas";
+    ViewData["Title"] = "Respuestas agrupadas por Entrada";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Agrupamos las respuestas por entrada
+    var respuestasAgrupadas = Model
+        .Where(r => r.Pregunta?.Entrada != null)
+        .GroupBy(r => r.Pregunta.Entrada)
+        .ToList();
 }
 
-<h1 class="mb-4">Listado de Respuestas</h1>
+<h2 class="mb-4">📘 Respuestas por Entrada</h2>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Crear Nueva Respuesta
-    </a>
-</p>
+@if (!respuestasAgrupadas.Any())
+{
+    <p class="text-muted">No hay respuestas para mostrar.</p>
+}
+else
+{
+    @foreach (var grupo in respuestasAgrupadas)
+    {
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">@grupo.Key?.Titulo ?? "Título no disponible"</h5>
+                <small class="text-light">
+                    🧑 Autor: @grupo.Key?.Miembro?.Nombre ?? "Desconocido" | 📅 @(grupo.Key?.Fecha.ToString("dd/MM/yyyy") ?? "Fecha no disponible")
+                </small>
+            </div>
+            <div class="card-body">
+                <p>@grupo.Key?.Texto ?? "Contenido no disponible"</p>
+                <hr />
+                <h6 class="mb-3">💬 Respuestas:</h6>
+                @foreach (var respuesta in grupo)
+                {
+                    <div class="mb-3 p-3 border-start border-3 border-secondary bg-light rounded">
+                        <div><strong>@(respuesta.Miembro?.Nombre ?? "Usuario Anónimo"):</strong> @respuesta.Texto</div>
+                        <div class="text-muted small">📅 @respuesta.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
 
-<table class="table table-striped table-hover align-middle">
-    <thead class="table-dark">
-        <tr>
-            <th>Pregunta</th>
-            <th>Fecha</th>
-            <th>Texto</th>
-            <th>Miembro</th>
-            <th class="text-center">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Pregunta?.Texto</td>
-                <td>@item.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@item.Texto</td>
-                <td>@item.Miembro?.Apellido</td>
-                <td class="text-center">
-                   
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 

@@ -192,59 +192,43 @@ namespace foro_C.Controllers
 
         [HttpPost]
         [Authorize]
+        [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Reaccionar(int entradaId, string accion)
         {
             var userName = User.Identity.Name;
             var miembro = await _context.Miembros.FirstOrDefaultAsync(m => m.UserName == userName);
-            if (miembro == null)
-            {
-                TempData["Error"] = "Usuario no encontrado.";
+            if (miembro == null || string.IsNullOrEmpty(accion))
                 return RedirectToAction("Details", "Entradas", new { id = entradaId });
-            }
 
-            var entrada = await _context.Entradas
-                .Include(e => e.Miembro)
-                .FirstOrDefaultAsync(e => e.Id == entradaId);
-            if (entrada == null)
-            {
-                TempData["Error"] = "Entrada no encontrada.";
-                return RedirectToAction("Index", "Entradas");
-            }
-
-            if (entrada.Privada || !entrada.Activa || entrada.Estado != EstadoEntrada.Publicada)
-            {
-                TempData["Error"] = "No puedes reaccionar a esta entrada.";
+            var entrada = await _context.Entradas.FindAsync(entradaId);
+            if (entrada == null || !entrada.Activa || entrada.Estado != EstadoEntrada.Publicada)
                 return RedirectToAction("Details", "Entradas", new { id = entradaId });
-            }
 
             var reaccion = await _context.Reacciones
-                .FirstOrDefaultAsync(r => r.MiembroId == miembro.Id && r.RespuestaId == entradaId); // <- revisá si debería ser EntradaId
+                .FirstOrDefaultAsync(r => r.MiembroId == miembro.Id && r.EntradaId == entradaId);
 
             if (accion == "agregar")
             {
                 if (reaccion == null)
                 {
-                    reaccion = new Reaccion
+                    _context.Reacciones.Add(new Reaccion
                     {
+                        EntradaId = entradaId,
                         MiembroId = miembro.Id,
-                        RespuestaId = entradaId, // o EntradaId si corresponde
                         Tipo = TipoReaccion.MeGusta
-                    };
-                    _context.Reacciones.Add(reaccion);
-                    await _context.SaveChangesAsync();
+                    });
                 }
             }
-            else if (accion == "quitar")
+            else if (accion == "quitar" && reaccion != null)
             {
-                if (reaccion != null)
-                {
-                    _context.Reacciones.Remove(reaccion);
-                    await _context.SaveChangesAsync();
-                }
+                _context.Reacciones.Remove(reaccion);
             }
 
-            // Redirigimos de vuelta a la vista de detalles
+            await _context.SaveChangesAsync();
             return RedirectToAction("Details", "Entradas", new { id = entradaId });
         }
+
+
     }
 }

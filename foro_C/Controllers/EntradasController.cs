@@ -24,45 +24,26 @@ namespace foro_C.Controllers
             _userManager = userManager;
         }
 
-        // =========================================
-        // LISTAR (anónimo)
-        // =========================================
+   
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+
+        public async Task<IActionResult> Details(int id)
         {
-            var entradas = await _context.Entradas
-                                         .Where(e =>  !e.Privada)
-                                         .Include(e => e.Miembro)
-                                         .Include(e => e.Categoria)
-                                         .Include(e => e.Preguntas)
-                                         .ToListAsync();
-
-            return View(entradas);
-        }
-
-        // =========================================
-        // DETALLE (anónimo, sólo públicas)
-        // =========================================
-        [AllowAnonymous]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
-
             var entrada = await _context.Entradas
-                                        .Include(e => e.Categoria)
-                                        .Include(e => e.Miembro)
-                                        .Include(e => e.Preguntas!)
-                                            .ThenInclude(p => p.Respuestas)
-                                        .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(e => e.Miembro)
+                .Include(e => e.Preguntas)
+                    .ThenInclude(p => p.Respuestas)
+                        .ThenInclude(r => r.Miembro)
+                .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (entrada == null) return NotFound();
-
-            // Si es privada y el usuario no está habilitado → acceso denegado
-            if (entrada.Privada && !UserCanAccessPrivateEntry(entrada))
-                return RedirectToAction("AccesoDenegado", "Account");
+            if (entrada == null)
+                return NotFound();
 
             return View(entrada);
         }
+
+
+
 
         // =========================================
         // CREAR
