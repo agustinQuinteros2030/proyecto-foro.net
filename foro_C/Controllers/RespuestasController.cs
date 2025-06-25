@@ -58,14 +58,18 @@ namespace foro_C.Controllers
         }
 
         // GET: Respuestas/Create
+        [Authorize(Roles = "Miembro,Administrador")]
         public IActionResult Create(int entradaId)
         {
-            var preguntas = _context.Preguntas.Where(p => p.EntradaId == entradaId).ToList();
-            ViewData["PreguntaId"] = new SelectList(preguntas, "Id", "Texto");
-            ViewBag.EntradaId = entradaId;
+            var pregunta = _context.Preguntas.FirstOrDefault(p => p.EntradaId == entradaId);
+            if (pregunta == null)
+            {
+                return RedirectToAction("Index", "Entradas");
+            }
+
+            ViewBag.PreguntaId = pregunta.Id;
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -74,13 +78,7 @@ namespace foro_C.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var entradaId = _context.Preguntas
-                                  .Where(pq => pq.Id == respuesta.PreguntaId)
-                                  .Select(pq => pq.EntradaId)
-                                  .FirstOrDefault();
-
-                var preguntas = _context.Preguntas.Where(p => p.EntradaId == entradaId).ToList();
-                ViewData["PreguntaId"] = new SelectList(preguntas, "Id", "Texto", respuesta.PreguntaId);
+                ViewBag.PreguntaId = respuesta.PreguntaId;
                 return View(respuesta);
             }
 
@@ -95,10 +93,16 @@ namespace foro_C.Controllers
             await _context.SaveChangesAsync();
 
             var pregunta = await _context.Preguntas.FirstOrDefaultAsync(p => p.Id == respuesta.PreguntaId);
-            if (pregunta == null) return RedirectToAction("Index", "Entradas");
+            if (pregunta == null)
+            {
+                return RedirectToAction("Index", "Entradas");
+            }
 
             return RedirectToAction("Details", "Entradas", new { id = pregunta.EntradaId });
         }
+    
+
+
 
 
         // GET: Respuestas/Edit/5

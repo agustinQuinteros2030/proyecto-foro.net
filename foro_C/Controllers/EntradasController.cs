@@ -48,7 +48,7 @@ namespace foro_C.Controllers
         // =========================================
         // CREAR
         // =========================================
-        [Authorize(Roles = "Miembro")]
+        [Authorize(Roles = "Miembro,Administrador")]
         public IActionResult Create()
         {
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre");
@@ -57,7 +57,7 @@ namespace foro_C.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Miembro")]
+        [Authorize(Roles = "Miembro,Administrador")]
         
         public async Task<IActionResult> Create([Bind("Titulo,Texto,Privada,CategoriaId")] Entrada entrada)
         {
@@ -189,6 +189,13 @@ namespace foro_C.Controllers
                 .ToListAsync();
 
             return Json(resultados);
+        }
+
+        [Authorize(Roles = "Miembro,Administrador")]
+        public async Task<IActionResult> Index()
+        {
+            var entradas = await _context.Entradas.Include(e => e.Categoria).ToListAsync();
+            return View(entradas);
         }
 
 
