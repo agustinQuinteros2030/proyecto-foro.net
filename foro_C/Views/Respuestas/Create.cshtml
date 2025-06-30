@@ -1,39 +1,25 @@
 ﻿@model foro_C.Models.Respuesta
 
+
+
 @{
-    ViewData["Title"] = "Responder Pregunta";
+    ViewData["Title"] = "Crear Respuesta";
+    var preguntaItems = (SelectList)ViewData["PreguntaId"];
 }
 
-<div class="container mt-5">
-    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">✍️ Escribir respuesta</h4>
-        </div>
-        <div class="card-body">
-            <form asp-action="Create" method="post">
-                @* Este campo hidden pasa el ID de la pregunta a responder *@
-                <input type="hidden" asp-for="PreguntaId" />
-
-                <div class="mb-3">
-                    <label class="form-label">Tu respuesta</label>
-                    <textarea asp-for="Texto" class="form-control" rows="4" placeholder="Escribí tu respuesta acá..."></textarea>
-                    <span asp-validation-for="Texto" class="text-danger"></span>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <a asp-controller="Entradas" asp-action="Index" class="btn btn-secondary">⬅ Volver</a>
-                    <button type="submit" class="btn btn-success">✅ Enviar respuesta</button>
-                </div>
-            </form>
-        </div>
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label>Pregunta a responder</label>
+        <select asp-for="PreguntaId" asp-items="preguntaItems" class="form-select"></select>
     </div>
-</div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+    <div class="mb-3">
+        <label>Respuesta</label>
+        <textarea asp-for="Texto" class="form-control"></textarea>
+        <span asp-validation-for="Texto" class="text-danger"></span>
+    </div>
 
+    <button type="submit" class="btn btn-primary">Enviar respuesta</button>
+</form>
 
 
