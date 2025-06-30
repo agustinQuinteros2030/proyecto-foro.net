@@ -18,14 +18,12 @@ namespace foro_C.Controllers
         private readonly ForoContext _context;
         private readonly RoleManager<Rol> roleManager;
         private readonly UserManager<Persona> userManager;
-        private readonly SignInManager<Persona> _signInManager;
 
-        public MiembrosController(ForoContext context, UserManager<Persona> userManager, RoleManager<Rol> roleManager, SignInManager<Persona> signInManager)
+        public MiembrosController(ForoContext context, UserManager<Persona> userManager, RoleManager<Rol> roleManager)
         {
             _context = context;
             this.userManager = userManager;
             this.roleManager = roleManager;
-            _signInManager = signInManager;
         }
 
         // GET: Miembros
@@ -81,19 +79,22 @@ namespace foro_C.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
-
-            var usuarioLogueadoId = userManager.GetUserId(User); // string
-            var miembro = await _context.Miembros.FindAsync(id);
-
-            if (miembro == null) return NotFound();
-
-            if (miembro.Id.ToString() != usuarioLogueadoId)
             {
-                return RedirectToAction("AccesoDenegado", "Account");
-            }
+                if (id == null) return NotFound();
 
-            return View(miembro);
+                var usuarioLogueadoId = userManager.GetUserId(User); // id string
+                var miembro = await _context.Miembros.FindAsync(id);
+
+                if (miembro == null) return NotFound();
+
+                // Validamos que el usuario logueado sea el dueño del perfil
+                if (miembro.Id.ToString() != usuarioLogueadoId)
+                {
+                    return RedirectToAction("AccesoDenegado", "Account");
+                }
+
+                return View(miembro);
+            }
         }
 
         // POST: Miembros/Edit/5
@@ -101,10 +102,8 @@ namespace foro_C.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [HttpPost]
-
-      
         public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Nombre,Apellido,FechaAlta,Email,DireccionID,Telefono")] Miembro miembroFormulario)
+
         {
             if (id != miembroFormulario.Id) return NotFound();
 
@@ -114,51 +113,53 @@ namespace foro_C.Controllers
             {
                 return RedirectToAction("AccesoDenegado", "Account");
             }
-
-            if (ModelState.IsValid)
             {
-                try
+                if (id != miembroFormulario.Id)
                 {
-                    var miembroEnDb = await _context.Miembros.FindAsync(id);
-                    if (miembroEnDb == null) return NotFound();
+                    return NotFound();
+                }
 
-                    // Actualizar datos
-                    miembroEnDb.UserName = miembroFormulario.UserName;
-                    miembroEnDb.Nombre = miembroFormulario.Nombre;
-                    miembroEnDb.Apellido = miembroFormulario.Apellido;
-                    miembroEnDb.Telefono = miembroFormulario.Telefono;
-
-                    if (!ActualizarEmail(miembroFormulario, miembroEnDb))
+                if (ModelState.IsValid)
+                {
+                    try
                     {
-                        ModelState.AddModelError("Email", "El email ya está en uso por otro usuario.");
-                        return View(miembroFormulario);
+                        var miembroEnDb = await _context.Miembros.FindAsync(id);
+
+                        if (miembroEnDb == null)
+                        {
+                            return NotFound();
+                        }
+                        miembroEnDb.Id = miembroFormulario.Id;
+                        miembroEnDb.UserName = miembroFormulario.UserName;
+                        miembroEnDb.Nombre = miembroFormulario.Nombre;
+                        miembroEnDb.Apellido = miembroFormulario.Apellido;
+                        miembroEnDb.Telefono = miembroFormulario.Telefono;
+
+                        if (!ActualizarEmail(miembroFormulario, miembroEnDb))
+                        {
+                            ModelState.AddModelError("Email", "El email ya está en uso por otro usuario.");
+                            return View(miembroFormulario);
+                        }
+
+                        _context.Update(miembroEnDb);
+                        await _context.SaveChangesAsync();
                     }
-
-                    _context.Update(miembroEnDb);
-                    await _context.SaveChangesAsync();
-
-                    // 🔄 Actualizar sesión (claims) si cambió UserName o Email
-                    if (miembroEnDb.UserName != User.Identity?.Name ||
-                        miembroEnDb.Email != User.FindFirstValue(ClaimTypes.Email))
+                    catch (DbUpdateConcurrencyException)
                     {
-                        await _signInManager.RefreshSignInAsync(miembroEnDb);
+                        if (!MiembroExists(miembroFormulario.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
-
                     return RedirectToAction("Index", "Home");
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MiembroExists(miembroFormulario.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
+                return View(miembroFormulario);
             }
-
-            return View(miembroFormulario);
         }
-
-
         [Authorize]
         private bool ActualizarEmail(Miembro miembroFormulario, Miembro emailActual)
         {

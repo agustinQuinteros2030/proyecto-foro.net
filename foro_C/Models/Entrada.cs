@@ -51,9 +51,6 @@ namespace foro_C.Models
 
         public List<Pregunta> Preguntas { get; set; } = new();
         public List<Habilitacion> Habilitaciones { get; set; } = new();
-
-        public List<Respuesta> Respuestas { get; set; } = new();
-
     }
 }
 
