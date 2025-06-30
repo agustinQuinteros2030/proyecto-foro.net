@@ -17,13 +17,4 @@ public class Interaccion
 
     //Propiedad navegacional
     public Miembro Miembro { get; set; }
-
-
-    public int EntradaId { get; set; }
-
-    // Propiedad navegacional
-    public Entrada Entrada { get; set; }
-
-
-
 }

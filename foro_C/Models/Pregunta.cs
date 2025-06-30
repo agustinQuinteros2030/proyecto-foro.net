@@ -9,7 +9,10 @@ namespace foro_C.Models
         public Boolean Activa { get; set; }
 
         // Propiedad relacional
-      
+        public int EntradaId { get; set; }
+
+        // Propiedad navegacional
+        public Entrada Entrada { get; set; }
         public List<Respuesta> Respuestas { get; set; } = new();
 
         //prop relacional
