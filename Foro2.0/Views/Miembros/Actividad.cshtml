@@ -1,0 +1,74 @@
+﻿@model Foro2._0.Models.Miembro
+
+@{
+    ViewData["Title"] = "Actividad del Usuario";
+}
+
+<h2 class="text-center text-primary mb-4">📜 Registro de Actividad</h2>
+
+<hr />
+<h4 class="text-success">📝 Entradas Creadas</h4>
+@if (Model.EntradasCreadas != null && Model.EntradasCreadas.Any())
+{
+    <ul class="list-group mb-4">
+        @foreach (var entrada in Model.EntradasCreadas)
+        {
+            <li class="list-group-item">
+                <strong>@entrada.Titulo</strong><br />
+                <span class="text-muted">@entrada.FechaCreacion.ToShortDateString()</span>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">No creaste ninguna entrada aún.</p>
+}
+
+<hr />
+<h4 class="text-warning">💬 Respuestas Dadas</h4>
+@if (Model.RespuestasRealizadas != null && Model.RespuestasRealizadas.Any())
+{
+    <ul class="list-group mb-4">
+        @foreach (var r in Model.RespuestasRealizadas)
+        {
+            <li class="list-group-item">
+                <p><strong>Pregunta:</strong> @r.Pregunta.Texto</p>
+                <p><strong>Tu respuesta:</strong> @r.Texto</p>
+                <small class="text-muted">Respondida el @r.Fecha.ToShortDateString()</small>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">No realizaste ninguna respuesta aún.</p>
+}
+
+<hr />
+<h4 class="text-info">👍 Reacciones Hechas</h4>
+@if (Model.ReaccionesRealizadas != null && Model.ReaccionesRealizadas.Any())
+{
+    <ul class="list-group mb-4">
+        @foreach (var react in Model.ReaccionesRealizadas)
+        {
+            <li class="list-group-item">
+                <p><strong>@react.Tipo</strong> a la respuesta:</p>
+                <blockquote class="blockquote ms-3">
+                    @react.Respuesta.Texto
+                </blockquote>
+                <small class="text-muted">En respuesta ID: @react.RespuestaId</small>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">No hiciste ninguna reacción aún.</p>
+}
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary mt-4">⬅ Volver al inicio</a>
+
+
+
+

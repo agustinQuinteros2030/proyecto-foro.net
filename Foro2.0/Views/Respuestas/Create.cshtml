@@ -1,0 +1,29 @@
+﻿@model Foro2._0.Models.Respuesta
+@{
+    var returnUrl = ViewBag.ReturnUrl as string ?? Url.Action("Index", "Entradas");
+}
+<h2>Responder Pregunta</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <input type="hidden" name="PreguntaId" value="@Model.PreguntaId" />
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+    <div class="form-group">
+        <label asp-for="Texto"></label>
+        <textarea asp-for="Texto" class="form-control"></textarea>
+        <span asp-validation-for="Texto" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar respuesta</button>
+</form>
+
+<a href="@returnUrl" class="btn btn-secondary">Cancelar</a>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

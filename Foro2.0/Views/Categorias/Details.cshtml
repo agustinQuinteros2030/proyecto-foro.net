@@ -1,0 +1,25 @@
+﻿@model Foro2._0.Models.Categoria
+
+@{
+    ViewData["Title"] = $"Entradas en {Model.Nombre}";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (Model.Entradas == null || !Model.Entradas.Any())
+{
+    <div class="alert alert-info">No hay entradas en esta categoría.</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var entrada in Model.Entradas)
+        {
+            <a asp-controller="Entradas" asp-action="Details" asp-route-id="@entrada.Id" class="list-group-item list-group-item-action">
+                <strong>@entrada.Titulo</strong><br />
+                <small class="text-muted">por @entrada.Miembro?.UserName - @entrada.FechaCreacion.ToShortDateString()</small>
+            </a>
+        }
+    </div>
+}
+

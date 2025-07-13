@@ -1,0 +1,9 @@
+﻿@{
+    ViewData["Title"] = "Acceso denegado";
+}
+<h2>Acceso denegado</h2>
+<p>No tenés permisos para acceder a esta página.</p>
+@if (ViewData["ReturnUrl"] != null)
+{
+    <p><a href="@ViewData["ReturnUrl"]">Volver</a></p>
+}
