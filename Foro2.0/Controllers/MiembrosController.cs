@@ -25,57 +25,41 @@ namespace Foro2._0.Controllers
             _signInManager = signInManager;
         }
 
-        [Authorize]
-        public async Task<IActionResult> Index()
+        [Authorize(Roles = "MIEMBRO")]
+        [Authorize(Roles = "MIEMBRO")]
+        public async Task<IActionResult> Perfil(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user is not Miembro miembro)
-                return Forbid();
+            // Obtener el usuario logueado
+            var miembro = await _context.Personas
+        .FirstOrDefaultAsync(p => p.Id == id);
 
-            return View(miembro);
-        }
-
-        // GET: Miembros/Details/5
-        [Authorize]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            if (miembro == null || !(miembro is Miembro))
             {
-                return NotFound();
+                return NotFound("Usuario no encontrado o no es un miembro.");
             }
 
-            var miembro = await _context.Miembros
-                .FirstOrDefaultAsync(m => m.Id == id);
+            // Traer al miembro con todas sus colecciones relacionadas
+             miembro = await _context.Miembros
+                .Include(m => m.EntradasCreadas)
+                .ThenInclude(e => e.Categoria)
+                    .Include(m => m.PreguntasRealizadas)
+        .Include(m => m.RespuestasRealizadas)
+        .Include(m => m.ReaccionesRealizadas)
+        .Include(m => m.AccesoEntradasPrivadas)
+                .FirstOrDefaultAsync(m => m.Id == miembro.Id);
+
+
             if (miembro == null)
             {
-                return NotFound();
+                return NotFound("No se encontró la información del miembro.");
             }
 
             return View(miembro);
         }
 
-        // GET: Miembros/Create
-        
-        public IActionResult Create()
-        {
-            return View();
-        }
 
-        // POST: Miembros/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Username,Nombre,Apellido,Telefono,FechaAlta,Email")] Miembro miembro)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(miembro);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(miembro);
-        }
+
+
 
         [Authorize(Roles = "MIEMBRO")]
         public async Task<IActionResult> Edit()

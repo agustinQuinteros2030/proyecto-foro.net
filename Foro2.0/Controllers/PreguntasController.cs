@@ -98,7 +98,7 @@ namespace Foro2._0.Controllers
 
 
         // GET: Preguntas/Edit/5
-        [Authorize(Roles = "MIEMBRO")]
+        [Authorize(Roles = "MIEMBRO,ADMINISTRADOR")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -118,7 +118,7 @@ namespace Foro2._0.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "MIEMBRO")]
+        [Authorize(Roles = "MIEMBRO,ADMINISTRADOR")]
         public async Task<IActionResult> Edit(int id, [Bind("Texto,Activa,EntradaId,Id,Fecha,MiembroId")] Pregunta pregunta)
         {
             if (id != pregunta.Id)
@@ -127,6 +127,9 @@ namespace Foro2._0.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null || pregunta.MiembroId != user.Id)
                 return Forbid(); // ❌ intento editar pregunta ajena
+
+           
+
 
             if (ModelState.IsValid)
             {
@@ -143,7 +146,8 @@ namespace Foro2._0.Controllers
                         throw;
                 }
                 return RedirectToAction(nameof(Index));
-            }
+            
+        }
 
             ViewData["EntradaId"] = new SelectList(_context.Entradas, "Id", "Texto", pregunta.EntradaId);
             return View(pregunta);

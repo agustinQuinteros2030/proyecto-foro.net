@@ -5,28 +5,66 @@
 
 <h2 class="mb-4">Mi Perfil</h2>
 
-<div class="card shadow-sm p-4 mb-3">
-    <h4 class="mb-3">@Model.UserName</h4>
 
-    <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">@Model.Nombre</dd>
+<div class="container mt-5">
+    <div class="text-center">
+        <h2>@Model.UserName</h2>
 
-        <dt class="col-sm-3">Apellido</dt>
-        <dd class="col-sm-9">@Model.Apellido</dd>
+        <div class="mt-3">
+            <a asp-action="Actividad" class="btn btn-outline-primary me-2">Ver Historial</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Editar Perfil</a>
+            <a asp-controller="Miembros" asp-action="Delete" class="btn btn-danger">Eliminar Cuenta</a>
 
-        <dt class="col-sm-3">Email</dt>
-        <dd class="col-sm-9">@Model.Email</dd>
-
-        <dt class="col-sm-3">Fecha de Registro</dt>
-        <dd class="col-sm-9">@Model.FechaAlta.ToShortDateString()</dd>
-    </dl>
-
-    <div class="mt-4">
-        <a asp-action="Historial" class="btn btn-outline-primary me-2">Ver Historial</a>
-        <a asp-controller="Miembros" asp-action="Edit" class="btn btn-outline-secondary">Editar Perfil</a>
+        </div>
     </div>
 </div>
+<h3>Entradas creadas</h3>
+<h3 class="text-center mb-4">Entradas creadas</h3>
+<section class="col-md-8 mx-auto">
+    @if (Model.EntradasCreadas == null || !Model.EntradasCreadas.Any())
+    {
+        <div class="alert alert-info text-center">
+            No creaste ninguna entrada todavía.
+        </div>
+    }
+    else
+    {
+        foreach (var entrada in Model.EntradasCreadas)
+        {
+            <article class="card mb-4 shadow-sm border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="card-title d-flex align-items-center mb-0">
+                        @entrada.Titulo
+                        @if (entrada.Privada)
+                        {
+                            <span class="badge bg-dark text-light ms-3">Privada</span>
+                        }
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-truncate" style="max-height: 4.5em; overflow: hidden;">
+                        @entrada.Texto
+                    </p>
+                    <p class="card-subtitle text-muted small">
+                        <i class="bi bi-tags"></i> Categoría: <strong>@entrada.Categoria?.Nombre</strong> |
+                        <i class="bi bi-person"></i> Autor: <strong>@entrada.Miembro?.UserName</strong> |
+                        <i class="bi bi-calendar"></i> Publicado: @entrada.FechaCreacion.ToShortDateString()
+                    </p>
+                    <div class="mt-3 text-end">
+                        <a asp-controller="Entradas" asp-action="Details" asp-route-id="@entrada.Id" class="btn btn-outline-secondary btn-sm">
+                            Ver más
+                        </a>
+                    </div>
+                </div>
+            </article>
+        }
+    }
+</section>
+
+
+
+
+
+
 
 <a asp-controller="Home" asp-action="Index" class="btn btn-link">Volver al inicio</a>
-

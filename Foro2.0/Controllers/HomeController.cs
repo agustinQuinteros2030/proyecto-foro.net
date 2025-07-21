@@ -45,28 +45,25 @@ namespace Foro2._0.Controllers
                 .Take(5)
                 .ToList();
 
-            // Top 3 miembros con más entradas en el último mes
-            var ultimoMes = DateTime.Now.AddMonths(-1);
-
             var topMiembros = _context.Entradas
-                .Where(e => e.FechaCreacion >= ultimoMes)
-                .GroupBy(e => e.Miembro)
-                .Select(g => new
-                {
-                    Miembro = g.Key,
-                    CantidadEntradas = g.Count()
-                })
-                .OrderByDescending(x => x.CantidadEntradas)
-                .Take(3)
-                .ToList();
+           .Where(e => e.FechaCreacion.Month == DateTime.Now.Month && e.FechaCreacion.Year == DateTime.Now.Year)
+           .GroupBy(e => e.Miembro)
+           .Select(g => new
+                 {
+            Miembro = g.Key,
+             CantidadEntradas = g.Count()
+                                })
+           .OrderByDescending(x => x.CantidadEntradas)
+           .Take(3)
+            .ToList();
+
 
             // Pasamos todo a ViewBag
             ViewBag.EntradasRecientes = entradasRecientes;
             ViewBag.TopEntradas = topEntradas;
             ViewBag.TopMiembros = topMiembros;
 
-            // **IMPORTANTE** Pasamos el modelo principal para que la vista no explote en Model.Any()
-            // Por ejemplo, todas las entradas para listado general (puedes cambiar filtro si querés)
+            
             var todasEntradas = _context.Entradas
                 .Include(e => e.Miembro)
                 .Include(e => e.Categoria)

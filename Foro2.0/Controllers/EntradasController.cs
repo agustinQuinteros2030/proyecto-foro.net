@@ -36,6 +36,11 @@ namespace Foro2._0.Controllers
             var entrada = await _context.Entradas
                 .Include(e => e.Miembro)
                 .Include(e => e.Preguntas)
+                    .ThenInclude(p => p.Miembro) // 👈 Incluye el autor de la pregunta
+                .Include(e => e.Preguntas)
+                    .ThenInclude(p => p.Respuestas)
+                        .ThenInclude(r => r.Miembro) // 👈 Incluye el autor de la respuesta
+                .Include(e => e.Preguntas)
                     .ThenInclude(p => p.Respuestas)
                         .ThenInclude(r => r.Reacciones)
                 .FirstOrDefaultAsync(e => e.Id == id);
@@ -45,14 +50,12 @@ namespace Foro2._0.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
-            // Check si el usuario es el autor de la entrada
-            ViewBag.EsAutor = user != null && entrada.AutorId == user.Id;
+            ViewBag.EsAutor = user != null && entrada.MiembroId == user.Id;
 
-            // También, si el usuario está habilitado para ver (o es autor)
             ViewBag.EstaHabilitado = user != null &&
-                (entrada.AutorId == user.Id || await _context.Habilitaciones.AnyAsync(h => h.EntradaId == id && h.MiembroId == user.Id && h.Habilitado));
+                (entrada.MiembroId == user.Id || await _context.Habilitaciones
+                    .AnyAsync(h => h.EntradaId == id && h.MiembroId == user.Id && h.Habilitado));
 
-            // Solo si es autor, traer solicitudes pendientes
             if ((bool)ViewBag.EsAutor)
             {
                 ViewBag.SolicitudesPendientes = await _context.Habilitaciones
@@ -63,6 +66,83 @@ namespace Foro2._0.Controllers
 
             return View(entrada);
         }
+
+
+
+        [Authorize(Roles = "ADMINISTRADOR,MIEMBRO")]
+        [HttpPost]
+        public async Task<IActionResult> DesactivarPregunta(int preguntaId)
+        {
+            var pregunta = await _context.Preguntas
+                .Include(p => p.Entrada)
+                .FirstOrDefaultAsync(p => p.Id == preguntaId);
+
+            if (pregunta == null)
+                return NotFound();
+
+            var user = await _userManager.GetUserAsync(User);
+            bool esAdmin = User.IsInRole("ADMINISTRADOR");
+            bool esAutorDeEntrada = pregunta.Entrada.MiembroId == user.Id;
+
+            if (!esAdmin && !esAutorDeEntrada)
+            {
+                return Forbid();  // si no es un admin o el creador de la entrada 
+            }
+
+            if (pregunta != null)
+            {
+                pregunta.Activa = false;
+                _context.Update(pregunta);
+                await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "La pregunta fue desactivada correctamente.";
+            }
+            else
+            {
+                TempData["Error"] = "No se encontró la pregunta.";
+            }
+
+       
+            return RedirectToAction("Details", new { id = pregunta.Entrada.Id });
+        }
+
+
+
+        [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR,MIEMBRO")]
+        public async Task<IActionResult> ActivarPregunta(int preguntaId)
+        {
+            var pregunta = await _context.Preguntas
+               .Include(p => p.Entrada)
+               .FirstOrDefaultAsync(p => p.Id == preguntaId);
+
+            if (pregunta == null)
+                return NotFound();
+
+            var user = await _userManager.GetUserAsync(User);
+            if (User.IsInRole("MIEMBRO") && pregunta.MiembroId != user.Id)
+            {
+                return Forbid(); // solo el autor y los admin pueden activar preguntas
+            }
+
+            if (pregunta != null)
+            {
+                pregunta.Activa = true;
+                _context.Update(pregunta);
+                await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "La pregunta fue activada correctamente.";
+            }
+            else
+            {
+                TempData["Error"] = "No se encontró la pregunta.";
+            }
+
+
+            return RedirectToAction("Details", new { id = pregunta.Entrada.Id });
+
+        }
+
+
+
 
 
 
@@ -88,7 +168,8 @@ namespace Foro2._0.Controllers
 
             // Aseguramos que el autor sea el usuario actual (ignorar cualquier valor recibido)
             var user = await _userManager.GetUserAsync(User);
-            entrada.AutorId = user.Id;
+            entrada.MiembroId = user.Id;
+          
 
             // Seteamos fecha
             entrada.FechaCreacion = DateTime.Now;
@@ -152,10 +233,10 @@ namespace Foro2._0.Controllers
             if (entrada == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
-            if (entrada.AutorId != user.Id)
+            if (entrada.MiembroId != user.Id)
                 return Forbid();
 
-            ViewData["AutorId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.AutorId);
+            ViewData["AutorId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.MiembroId);
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
             return View(entrada);
         }
@@ -174,7 +255,7 @@ namespace Foro2._0.Controllers
             var user = await _userManager.GetUserAsync(User);
             var original = await _context.Entradas.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
 
-            if (original == null || original.AutorId != user.Id)
+            if (original == null || original.MiembroId != user.Id)
                 return Forbid();
 
             if (ModelState.IsValid)
@@ -192,7 +273,7 @@ namespace Foro2._0.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["AutorId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.AutorId);
+            ViewData["AutorId"] = new SelectList(_context.Miembros, "Id", "Apellido", entrada.MiembroId);
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "Id", "Nombre", entrada.CategoriaId);
             return View(entrada);
         }
@@ -214,7 +295,7 @@ namespace Foro2._0.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             // Si es miembro, solo puede borrar su propia entrada
-            if (User.IsInRole("MIEMBRO") && entrada.AutorId != user.Id)
+            if (User.IsInRole("MIEMBRO") && entrada.MiembroId != user.Id)
                 return Forbid();
 
             return View(entrada);
@@ -231,7 +312,7 @@ namespace Foro2._0.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             // Si es miembro, solo puede borrar su propia entrada
-            if (User.IsInRole("MIEMBRO") && entrada.AutorId != user.Id)
+            if (User.IsInRole("MIEMBRO") && entrada.MiembroId != user.Id)
                 return Forbid();
 
             _context.Entradas.Remove(entrada);

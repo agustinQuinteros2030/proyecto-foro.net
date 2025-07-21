@@ -19,7 +19,7 @@ namespace Foro2._0.Models
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
 
         public Miembro Miembro { get; set; }
-        public int AutorId { get; set; }
+        public int MiembroId { get; set; }
         public int CategoriaId { get; set; }
         public Categoria Categoria { get; set; }
         public List<Pregunta> Preguntas { get; set; } = new List<Pregunta>();

@@ -5,7 +5,10 @@
 
     var recientes = ViewBag.EntradasRecientes as List<Entrada> ?? new List<Entrada>();
     var topEntradas = ViewBag.TopEntradas as List<Entrada> ?? new List<Entrada>();
-    var topMiembros = ViewBag.TopMiembros as List<dynamic>;
+    var topMiembros = ViewBag.TopMiembros as IEnumerable<object>;
+
+
+
 }
 
 <div class="row">
@@ -70,28 +73,34 @@
             </ul>
         </div>
 
-        <div class="card mb-4 shadow-sm border-violet" style="border-color: #8e44ad !important;">
-            <div class="card-header text-white" style="background-color: #8e44ad;">
+        <div class="card mb-4 shadow-sm border-secondary" style="border-color: #8e44ad  !important;">
+            <div class="card-header text-white text-center" style="background-color: #8e44ad;">
                 <h5 class="mb-0"><i class="bi bi-trophy"></i> Top 3 miembros del mes</h5>
             </div>
-            <ul class="list-group list-group-flush">
-                @if (topMiembros == null || !topMiembros.Any())
-                {
-                    <li class="list-group-item text-muted fst-italic">No hay miembros activos para mostrar.</li>
-                }
-                else
-                {
-                    for (int i = 0; i < topMiembros.Count; i++)
+
+            @if (topMiembros == null || !topMiembros.Cast<object>().Any())
+            {
+                <li class="list-group-item text-muted fst-italic text-center">No hay miembros activos para mostrar.</li>
+            }
+            else
+            {
+                <ul class="list-group text-center">
+                    @foreach (var m in topMiembros)
                     {
-                        var m = topMiembros[i];
+                        var miembro = m.GetType().GetProperty("Miembro")?.GetValue(m, null) as Persona;
+                        var cantidad = m.GetType().GetProperty("CantidadEntradas")?.GetValue(m, null) ?? 0;
+
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><strong>@(m.Miembro?.UserName ?? "Usuario")</strong></span>
-                            <span class="badge bg-primary rounded-pill">@m.CantidadEntradas</span>
+                            <a asp-controller="Miembros" asp-action="Perfil" asp-route-id="@miembro?.Id" class="text-decoration-none text-dark">
+                                <strong>@(miembro?.UserName ?? "Usuario")</strong>
+                            </a>
+                            <span class="badge bg-secondary rounded-pill">@cantidad</span>
                         </li>
                     }
-                }
-            </ul>
+                </ul>
+            }
         </div>
+
     </aside>
 
     <!-- Listado principal de entradas -->

@@ -92,6 +92,8 @@ namespace Foro2._0.Controllers
                         return RedirectToAction("Details", "Entradas", new { id = pregunta?.EntradaId ?? 1 });
                     }
 
+                 
+
                     return Redirect(returnUrl);
                 }
 

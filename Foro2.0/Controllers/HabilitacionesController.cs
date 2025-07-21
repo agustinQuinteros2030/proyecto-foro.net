@@ -61,7 +61,7 @@ namespace Foro2._0.Controllers
             var user = await _userManager.GetUserAsync(User);
             var entrada = await _context.Entradas.Include(e => e.Miembro).FirstOrDefaultAsync(e => e.Id == entradaId);
 
-            if (entrada == null || entrada.AutorId != user.Id)
+            if (entrada == null || entrada.MiembroId != user.Id)
             {
                 return Forbid(); // No puede ver si no es el autor
             }
@@ -86,7 +86,7 @@ namespace Foro2._0.Controllers
             var entrada = await _context.Entradas.FindAsync(entradaId);
 
             // Seguridad: solo el autor puede aprobar
-            if (entrada.AutorId != user.Id)
+            if (entrada.MiembroId != user.Id)
                 return Forbid();
 
             var habilitacion = await _context.Habilitaciones
