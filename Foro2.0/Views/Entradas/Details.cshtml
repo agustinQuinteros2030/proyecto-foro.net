@@ -3,15 +3,18 @@
 @using System.Security.Claims
 @inject UserManager<Persona> UserManager
 @inject SignInManager<Persona> SignInManager
- 
+
 
 @{
     ViewData["Title"] = "Detalle de Entrada";
- 
+
     var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
     var esMiembro = User.IsInRole("MIEMBRO");
     var esAdmin = User.IsInRole("ADMINISTRADOR");
-   
+    bool esAutor = (ViewBag.EsAutor ?? false);
+    bool estaHabilitado = (ViewBag.EstaHabilitado ?? false);
+}
+
 }
 
 <!-- Mensajes TempData -->
@@ -40,204 +43,196 @@
 
 <hr />
 
-<h3 class="mb-4">Preguntas</h3>
 
-@if (Model.Privada && !(ViewBag.EsAutor ?? false) && !(ViewBag.EstaHabilitado ?? false))
+ 
+
+
+
+<hr />
+
+@if (Model.Privada && !esAutor && !estaHabilitado)
 {
     <div class="alert alert-warning">
-        <strong>Esta entrada es privada.</strong> Necesitás estar habilitado para ver las preguntas y participar.
+        <strong>Esta entrada es privada.</strong> Debes solicitar acceso para verla.
     </div>
 
-    <form asp-controller="Habilitaciones" asp-action="Solicitar" method="post" class="mb-4">
-        <input type="hidden" name="entradaId" value="@Model.Id" />
-        <button type="submit" class="btn btn-warning fw-bold">Solicitar acceso</button>
-    </form>
-
-    return;
-}
-
-@if (Model.Preguntas != null && Model.Preguntas.Any())
-{
-    foreach (var pregunta in Model.Preguntas)
+    @if (esMiembro)
     {
-        <div class="card mb-5 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title fw-semibold">@pregunta.Texto</h5>
-                <small>Fecha: @pregunta.Fecha.ToShortDateString() — Autor: @pregunta.Miembro?.UserName</small>
-               
-
-
-                @if (!pregunta.Activa)
-                {
-                    <div class="alert alert-danger py-2">
-                        Esta pregunta fue desactivada por ser considerada inapropiada.
-                    </div>
-                }
-
-                @* Botones activar/desactivar pregunta — solo para autor o admin *@
-                @if (esAdmin || (ViewBag.EsAutor ?? false))
-                {
-                    <div class="mb-3">
-                        @if (pregunta.Activa)
-                        {
-                            <form asp-action="DesactivarPregunta" asp-controller="Entradas" method="post" class="d-inline-block me-2">
-                                <input type="hidden" name="preguntaId" value="@pregunta.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">
-                                    <i class="bi bi-x-circle"></i> Desactivar pregunta
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <form asp-action="ActivarPregunta" asp-controller="Entradas" method="post" class="d-inline-block me-2">
-                                <input type="hidden" name="preguntaId" value="@pregunta.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-success fw-semibold">
-                                    <i class="bi bi-check-circle"></i> Activar pregunta
-                                </button>
-                            </form>
-                        }
-                    </div>
-                }
-
-                <div class="ms-3">
-                    <h6 class="mb-3 text-secondary fw-semibold">Respuestas:</h6>
-
-                    @if (pregunta.Respuestas != null && pregunta.Respuestas.Any())
-                    {
-                        var respuestasOrdenadas = pregunta.Respuestas.OrderBy(r => r.Fecha).ToList();
-
-                        var idRespuestaMasLikes = respuestasOrdenadas
-                        .OrderByDescending(r => r.Reacciones?.Count(x => x.Tipo == TipoReaccion.MeGusta) ?? 0)
-                        .FirstOrDefault()?.Id;
-
-                        var idRespuestaMasDislikes = respuestasOrdenadas
-                        .OrderByDescending(r => r.Reacciones?.Count(x => x.Tipo == TipoReaccion.NoMeGusta) ?? 0)
-                        .FirstOrDefault()?.Id;
-
-                        <ul class="list-group list-group-flush">
-                            @foreach (var respuesta in respuestasOrdenadas)
-                            {
-                                var esMasLike = respuesta.Id == idRespuestaMasLikes;
-                                var esMasDislike = respuesta.Id == idRespuestaMasDislikes;
-
-                                var clasesBase = "mb-4 position-relative p-3 rounded shadow-sm";
-                                string claseFondo = "";
-                                string etiqueta = "";
-                                <small>Fecha: @respuesta.Fecha.ToShortDateString() — Autor: @respuesta.Miembro?.UserName</small>
-
-                                if (esMasLike)
-                                {
-                                    claseFondo = "respuesta-destacada-like";
-                                    etiqueta = "👍 Respuesta más valorada";
-                                }
-                                else if (esMasDislike)
-                                {
-                                    claseFondo = "respuesta-destacada-dislike";
-                                    etiqueta = "👎 Respuesta más criticada";
-                                }
-
-                                <li class="@clasesBase @claseFondo">
-                                    @if (!string.IsNullOrEmpty(etiqueta))
-                                    {
-                                        <div class="etiqueta-destacada">
-                                            @etiqueta
-                                        </div>
-                                    }
-
-                                    <p class="mb-2 fs-5">@respuesta.Texto</p>
-                                    <small class="text-muted">Respondida el @respuesta.Fecha.ToShortDateString()</small>
-
-                                    <div class="mt-3 d-flex flex-wrap gap-2">
-                                        <form asp-controller="Reacciones" asp-action="Create" method="post" style="display:inline;">
-                                            <input type="hidden" name="respuestaId" value="@respuesta.Id" />
-                                            <input type="hidden" name="tipo" value="1" />
-                                            <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Entradas", new { id = Model.Id })" />
-                                            <button type="submit" class="btn btn-sm btn-outline-success">
-                                                👍 Me Gusta (@respuesta.Reacciones?.Count(r => r.Tipo == TipoReaccion.MeGusta) ?? 0)
-                                            </button>
-                                        </form>
-
-                                        <form asp-controller="Reacciones" asp-action="Create" method="post" style="display:inline;">
-                                            <input type="hidden" name="respuestaId" value="@respuesta.Id" />
-                                            <input type="hidden" name="tipo" value="2" />
-                                            <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Entradas", new { id = Model.Id })" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                ❤️ Me Encanta (@respuesta.Reacciones?.Count(r => r.Tipo == TipoReaccion.MeEncanta) ?? 0)
-                                            </button>
-                                        </form>
-
-                                        <form asp-controller="Reacciones" asp-action="Create" method="post" style="display:inline;">
-                                            <input type="hidden" name="respuestaId" value="@respuesta.Id" />
-                                            <input type="hidden" name="tipo" value="3" />
-                                            <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Entradas", new { id = Model.Id })" />
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
-                                                👎 No Me Gusta (@respuesta.Reacciones?.Count(r => r.Tipo == TipoReaccion.NoMeGusta) ?? 0)
-                                            </button>
-                                        </form>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <p class="text-muted fst-italic">Aún no hay respuestas.</p>
-                    }
-                </div>
-
-                @* Botón para responder — solo miembros, pregunta activa y no autor *@
-                @if (pregunta.Activa && esMiembro && pregunta.MiembroId != userId)
-                {
-                    <div class="mt-3">
-                        <a asp-controller="Respuestas"
-                           asp-action="Create"
-                           asp-route-preguntaId="@pregunta.Id"
-                           asp-route-returnUrl="@Url.Action("Details", "Entradas", new { id = Model.Id })"
-                           class="btn btn-primary fw-semibold">
-                            Responder
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>
+        <form asp-action="SolicitarAcceso" method="post">
+            <input type="hidden" name="entradaId" value="@Model.Id" />
+            <button type="submit" class="btn btn-secondary">Solicitar acceso</button>
+        </form>
     }
 }
 else
 {
-    <p>No hay preguntas en esta entrada.</p>
-}
+    <h3 class="mb-4">Preguntas</h3>
 
-@if (esMiembro)
-{
-    <div class="d-flex justify-content-end mt-4">
-        <a asp-controller="Preguntas"
-           asp-action="Create"
-           asp-route-entradaId="@Model.Id"
-           asp-route-returnUrl="@Url.Action("Details", "Entradas", new { id = Model.Id })"
-           class="btn btn-success fw-semibold">
-            Hacer una pregunta
-        </a>
-    </div>
-}
+    @* Botón Ver Solicitudes (solo autor) *@
+    @if (esAutor)
+    {
+        <a asp-action="VerSolicitudes" asp-route-entradaId="@Model.Id" class="btn btn-primary mb-3">Ver solicitudes</a>
+    }
 
-@if ((ViewBag.EsAutor ?? false) && (ViewBag.SolicitudesPendientes as List<Habilitacion>)?.Any() == true)
-{
-    <div class="alert alert-info mt-5 rounded shadow">
-        <h5>Solicitudes de acceso pendientes</h5>
-        <ul class="list-group mt-3">
-            @foreach (var solicitud in (List<Habilitacion>)ViewBag.SolicitudesPendientes)
-            {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    @solicitud.Miembro.UserName
-                    <form asp-controller="Habilitaciones" asp-action="Aprobar" method="post" class="mb-0">
-                        <input type="hidden" name="entradaId" value="@Model.Id" />
-                        <input type="hidden" name="miembroId" value="@solicitud.MiembroId" />
-                        <button type="submit" class="btn btn-sm btn-success fw-semibold">Habilitar</button>
-                    </form>
-                </li>
-            }
-        </ul>
-    </div>
+    @if (Model.Preguntas != null && Model.Preguntas.Any())
+    {
+        foreach (var pregunta in Model.Preguntas)
+        {
+            <div class="card mb-5 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">@pregunta.Texto</h5>
+                    <small>Fecha: @pregunta.Fecha.ToShortDateString() — Autor: @pregunta.Miembro?.UserName</small>
+
+                    @if (!pregunta.Activa)
+                    {
+                        <div class="alert alert-danger py-2">
+                            Esta pregunta fue desactivada por ser considerada inapropiada.
+                        </div>
+                    }
+
+                    @if (esAdmin || esAutor)
+                    {
+                        <div class="mb-3">
+                            @if (pregunta.Activa)
+                            {
+                                <form asp-action="DesactivarPregunta" asp-controller="Entradas" method="post" class="d-inline-block me-2">
+                                    <input type="hidden" name="preguntaId" value="@pregunta.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold">
+                                        <i class="bi bi-x-circle"></i> Desactivar pregunta
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="ActivarPregunta" asp-controller="Entradas" method="post" class="d-inline-block me-2">
+                                    <input type="hidden" name="preguntaId" value="@pregunta.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success fw-semibold">
+                                        <i class="bi bi-check-circle"></i> Activar pregunta
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    }
+
+                    <div class="ms-3">
+                        <h6 class="mb-3 text-secondary fw-semibold">Respuestas:</h6>
+
+                        @if (pregunta.Respuestas != null && pregunta.Respuestas.Any())
+                        {
+                            var respuestasOrdenadas = pregunta.Respuestas.OrderBy(r => r.Fecha).ToList();
+
+                            var idRespuestaMasLikes = respuestasOrdenadas
+                            .OrderByDescending(r => r.Reacciones?.Count(x => x.Tipo == TipoReaccion.MeGusta) ?? 0)
+                            .FirstOrDefault()?.Id;
+
+                            var idRespuestaMasDislikes = respuestasOrdenadas
+                            .OrderByDescending(r => r.Reacciones?.Count(x => x.Tipo == TipoReaccion.NoMeGusta) ?? 0)
+                            .FirstOrDefault()?.Id;
+
+                            <ul class="list-group list-group-flush">
+                                @foreach (var respuesta in respuestasOrdenadas)
+                                {
+                                    var esMasLike = respuesta.Id == idRespuestaMasLikes;
+                                    var esMasDislike = respuesta.Id == idRespuestaMasDislikes;
+
+                                    var clasesBase = "mb-4 position-relative p-3 rounded shadow-sm";
+                                    string claseFondo = "";
+                                    string etiqueta = "";
+                                    <small>Fecha: @respuesta.Fecha.ToShortDateString() — Autor: @respuesta.Miembro?.UserName</small>
+
+                                    if (esMasLike)
+                                    {
+                                        claseFondo = "respuesta-destacada-like";
+                                        etiqueta = "👍 Respuesta más valorada";
+                                    }
+                                    else if (esMasDislike)
+                                    {
+                                        claseFondo = "respuesta-destacada-dislike";
+                                        etiqueta = "👎 Respuesta más criticada";
+                                    }
+
+                                    <li class="@clasesBase @claseFondo">
+                                        @if (!string.IsNullOrEmpty(etiqueta))
+                                        {
+                                            <div class="etiqueta-destacada">
+                                                @etiqueta
+                                            </div>
+                                        }
+
+                                        <p class="mb-2 fs-5">@respuesta.Texto</p>
+                                        <small class="text-muted">Respondida el @respuesta.Fecha.ToShortDateString()</small>
+
+                                        <div class="mt-3 d-flex flex-wrap gap-2">
+                                            <form asp-controller="Reacciones" asp-action="Create" method="post" style="display:inline;">
+                                                <input type="hidden" name="respuestaId" value="@respuesta.Id" />
+                                                <input type="hidden" name="tipo" value="1" />
+                                                <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Entradas", new { id = Model.Id })" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                                    👍 Me Gusta (@respuesta.Reacciones?.Count(r => r.Tipo == TipoReaccion.MeGusta) ?? 0)
+                                                </button>
+                                            </form>
+
+                                            <form asp-controller="Reacciones" asp-action="Create" method="post" style="display:inline;">
+                                                <input type="hidden" name="respuestaId" value="@respuesta.Id" />
+                                                <input type="hidden" name="tipo" value="2" />
+                                                <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Entradas", new { id = Model.Id })" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    ❤️ Me Encanta (@respuesta.Reacciones?.Count(r => r.Tipo == TipoReaccion.MeEncanta) ?? 0)
+                                                </button>
+                                            </form>
+
+                                            <form asp-controller="Reacciones" asp-action="Create" method="post" style="display:inline;">
+                                                <input type="hidden" name="respuestaId" value="@respuesta.Id" />
+                                                <input type="hidden" name="tipo" value="3" />
+                                                <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Entradas", new { id = Model.Id })" />
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                    👎 No Me Gusta (@respuesta.Reacciones?.Count(r => r.Tipo == TipoReaccion.NoMeGusta) ?? 0)
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted fst-italic">Aún no hay respuestas.</p>
+                        }
+                    </div>
+
+                    @if (pregunta.Activa && esMiembro && pregunta.MiembroId != userId)
+                    {
+                        <div class="mt-3">
+                            <a asp-controller="Respuestas"
+                               asp-action="Create"
+                               asp-route-preguntaId="@pregunta.Id"
+                               asp-route-returnUrl="@Url.Action("Details", "Entradas", new { id = Model.Id })"
+                               class="btn btn-primary fw-semibold">
+                                Responder
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No hay preguntas en esta entrada.</p>
+    }
+
+    @if (esMiembro || esAdmin)
+    {
+        <div class="d-flex justify-content-end mt-4">
+            <a asp-controller="Preguntas"
+               asp-action="Create"
+               asp-route-entradaId="@Model.Id"
+               asp-route-returnUrl="@Url.Action("Details", "Entradas", new { id = Model.Id })"
+               class="btn btn-success fw-semibold">
+                Hacer una pregunta
+            </a>
+        </div>
+    }
 }
 
 <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mt-4">Volver al inicio</a>

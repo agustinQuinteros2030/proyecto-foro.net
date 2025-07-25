@@ -1,0 +1,39 @@
+﻿@model List<Foro2._0.Models.Habilitacion>
+<h2>Solicitudes de acceso</h2>
+
+@if (Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre del usuario</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var solicitud in Model)
+            {
+                <tr>
+                    <td>@solicitud.Miembro.UserName</td>
+                    <td>
+                        @(solicitud.Habilitado ? "Habilitado" : "Pendiente")
+                    </td>
+                    <td>
+                        @if (!solicitud.Habilitado)
+                        {
+                            <form asp-action="AceptarSolicitud" method="post">
+                                <input type="hidden" name="habilitacionId" value="@solicitud.Id" />
+                                <button type="submit" class="btn btn-success">Aceptar</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay solicitudes.</p>
+}

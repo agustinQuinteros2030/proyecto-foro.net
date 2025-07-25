@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Foro2._0.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Foro2._0.Controllers
 {
@@ -326,5 +327,70 @@ namespace Foro2._0.Controllers
         {
             return _context.Entradas.Any(e => e.Id == id);
         }
+
+
+        [Authorize(Roles = "MIEMBRO")]
+        public async Task<IActionResult> SolicitarAcceso(int entradaId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var yaExiste = await _context.Habilitaciones
+                .AnyAsync(h => h.EntradaId == entradaId && h.MiembroId == userId);
+
+            if (yaExiste)
+                return RedirectToAction("Details", new { id = entradaId });
+
+            var solicitud = new Habilitacion
+            {
+                EntradaId = entradaId,
+                MiembroId = userId,
+                Habilitado = false
+            };
+
+            _context.Habilitaciones.Add(solicitud);
+            await _context.SaveChangesAsync();
+
+            TempData["Mensaje"] = "Solicitud enviada correctamente.";
+            return RedirectToAction("Details", new { id = entradaId });
+        }
+
+
+        [Authorize(Roles = "MIEMBRO")]
+        public async Task<IActionResult> VerSolicitudes(int entradaId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var entrada = await _context.Entradas
+                .Include(e => e.MiembrosHabilitados).ThenInclude(h => h.Miembro)
+                .FirstOrDefaultAsync(e => e.Id == entradaId);
+
+            if (entrada == null || entrada.MiembroId != userId)
+                return Unauthorized();
+
+            return View(entrada.MiembrosHabilitados);
+        }
+
+
+        [Authorize(Roles = "MIEMBRO")]
+        public async Task<IActionResult> AceptarSolicitud(int habilitacionId)
+        {
+            var habilitacion = await _context.Habilitaciones
+                .Include(h => h.Entrada)
+                .FirstOrDefaultAsync(h => h.Id == habilitacionId);
+
+            if (habilitacion == null)
+                return NotFound();
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (habilitacion.Entrada.MiembroId != userId)
+                return Unauthorized();
+
+            habilitacion.Habilitado = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Mensaje"] = "Solicitud aceptada.";
+            return RedirectToAction("VerSolicitudes", new { entradaId = habilitacion.EntradaId });
+        }
+
+
     }
 }
