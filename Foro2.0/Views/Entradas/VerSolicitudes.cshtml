@@ -1,14 +1,31 @@
 ﻿@model List<Foro2._0.Models.Habilitacion>
+
 <h2>Solicitudes de acceso</h2>
+
+<!-- Mensajes TempData -->
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>✔</strong> @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+@if (TempData["Rechazo"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>✖</strong> @TempData["Rechazo"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
 
 @if (Model.Any())
 {
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Nombre del usuario</th>
+                <th>Usuario</th>
                 <th>Estado</th>
-                <th>Acción</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -22,10 +39,19 @@
                     <td>
                         @if (!solicitud.Habilitado)
                         {
-                            <form asp-action="AceptarSolicitud" method="post">
+                            <form asp-action="AceptarSolicitud" method="post" class="d-inline">
                                 <input type="hidden" name="habilitacionId" value="@solicitud.Id" />
-                                <button type="submit" class="btn btn-success">Aceptar</button>
+                                <button type="submit" class="btn btn-success btn-sm">Aceptar</button>
                             </form>
+
+                            <form asp-action="RechazarSolicitud" method="post" class="d-inline ms-2">
+                                <input type="hidden" name="habilitacionId" value="@solicitud.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-success fw-semibold">✔ Habilitado</span>
                         }
                     </td>
                 </tr>
@@ -37,3 +63,10 @@ else
 {
     <p>No hay solicitudes.</p>
 }
+
+
+    <div class="mt-4">
+        <a asp-controller="Entradas" asp-action="Details" asp-route-id="@ViewBag.EntradaId" class="btn btn-secondary">Volver a la entrada</a>
+    </div>
+
+

@@ -15,7 +15,14 @@
     bool estaHabilitado = (ViewBag.EstaHabilitado ?? false);
 }
 
+@if (!string.IsNullOrEmpty(Model.ImagenRuta))
+{
+    <div class="mb-4 text-center">
+        <img src="@Model.ImagenRuta" alt="Imagen de la entrada" class="img-fluid rounded shadow-sm" style="max-height: 400px;" />
+    </div>
 }
+
+
 
 <!-- Mensajes TempData -->
 @if (TempData["Mensaje"] != null)

@@ -131,6 +131,14 @@
                         </h4>
                     </div>
                     <div class="card-body">
+
+                        @if (!string.IsNullOrEmpty(entrada.ImagenRuta))
+                        {
+                            <div class="text-center mb-3">
+                                <img src="@entrada.ImagenRuta" class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: cover;" alt="Imagen de la entrada" />
+                            </div>
+                        }
+
                         <p class="card-text text-truncate" style="max-height: 4.5em; overflow: hidden;">
                             @entrada.Texto
                         </p>
@@ -149,6 +157,7 @@
             }
         }
     </section>
+
 </div>
 
 @section Styles {

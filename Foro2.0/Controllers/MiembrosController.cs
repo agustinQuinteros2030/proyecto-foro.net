@@ -9,6 +9,7 @@ using Foro2._0.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
+using System.Security.Claims;
 
 namespace Foro2._0.Controllers
 {
@@ -25,38 +26,37 @@ namespace Foro2._0.Controllers
             _signInManager = signInManager;
         }
 
+
         [Authorize(Roles = "MIEMBRO")]
+        public async Task<IActionResult> MiPerfil()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return RedirectToAction("Perfil", new { id = userId });
+        }
+
+
+
         [Authorize(Roles = "MIEMBRO")]
         public async Task<IActionResult> Perfil(int id)
         {
-            // Obtener el usuario logueado
-            var miembro = await _context.Personas
-        .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (miembro == null || !(miembro is Miembro))
-            {
-                return NotFound("Usuario no encontrado o no es un miembro.");
-            }
-
-            // Traer al miembro con todas sus colecciones relacionadas
-             miembro = await _context.Miembros
-                .Include(m => m.EntradasCreadas)
-                .ThenInclude(e => e.Categoria)
-                    .Include(m => m.PreguntasRealizadas)
-        .Include(m => m.RespuestasRealizadas)
-        .Include(m => m.ReaccionesRealizadas)
-        .Include(m => m.AccesoEntradasPrivadas)
-                .FirstOrDefaultAsync(m => m.Id == miembro.Id);
-
+            var miembro = await _context.Miembros
+                .Include(m => m.EntradasCreadas).ThenInclude(e => e.Categoria)
+                .Include(m => m.PreguntasRealizadas)
+                .Include(m => m.RespuestasRealizadas)
+                .Include(m => m.ReaccionesRealizadas)
+                .Include(m => m.AccesoEntradasPrivadas)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (miembro == null)
             {
                 return NotFound("No se encontró la información del miembro.");
             }
 
+            var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            ViewBag.EsMiPerfil = (miembro.Id == currentUserId);
+
             return View(miembro);
         }
-
 
 
 

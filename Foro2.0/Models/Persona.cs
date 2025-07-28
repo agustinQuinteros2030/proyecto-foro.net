@@ -42,6 +42,10 @@ namespace Foro2._0.Models
             get => base.Email;
             set => base.Email = value;
         }
+
+        
+
+
     }
 
 }

@@ -9,6 +9,10 @@ using Foro2._0.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Foro2._0.Controllers
 {
@@ -16,11 +20,13 @@ namespace Foro2._0.Controllers
     {
         private readonly ForoContext _context;
         private readonly UserManager<Persona> _userManager;
+        private readonly IWebHostEnvironment _environment;
 
-        public EntradasController(ForoContext context, UserManager<Persona> userManager)
+        public EntradasController(ForoContext context, UserManager<Persona> userManager, IWebHostEnvironment environment)
         {
             _context = context;
             _userManager = userManager;
+            _environment = environment;
         }
 
         // GET: Entradas
@@ -156,10 +162,16 @@ namespace Foro2._0.Controllers
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "MIEMBRO")]
-        public async Task<IActionResult> Create(Entrada entrada, string TextoPregunta, int? CategoriaId, string NuevaCategoria, string returnUrl = null)
+        public async Task<IActionResult> Create(
+    Entrada entrada,
+    int? CategoriaId,
+    string NuevaCategoria,
+    IFormFile? ImagenEntrada,   // Imagen opcional
+    string returnUrl = null)
         {
             if (!ModelState.IsValid)
             {
@@ -167,15 +179,11 @@ namespace Foro2._0.Controllers
                 return View(entrada);
             }
 
-            // Aseguramos que el autor sea el usuario actual (ignorar cualquier valor recibido)
             var user = await _userManager.GetUserAsync(User);
             entrada.MiembroId = user.Id;
-          
 
-            // Seteamos fecha
             entrada.FechaCreacion = DateTime.Now;
 
-            // Categoria: si viene nueva, crearla
             if (!string.IsNullOrWhiteSpace(NuevaCategoria))
             {
                 var catExistente = await _context.Categorias.FirstOrDefaultAsync(c => c.Nombre == NuevaCategoria);
@@ -183,7 +191,7 @@ namespace Foro2._0.Controllers
                 {
                     var nuevaCat = new Categoria { Nombre = NuevaCategoria };
                     _context.Categorias.Add(nuevaCat);
-                    await _context.SaveChangesAsync(); // Guardar para que tenga Id
+                    await _context.SaveChangesAsync();
                     entrada.CategoriaId = nuevaCat.Id;
                 }
                 else
@@ -202,13 +210,30 @@ namespace Foro2._0.Controllers
                 return View(entrada);
             }
 
-            // Crear la pregunta inicial
+            // Manejo de la imagen
+            if (ImagenEntrada != null && ImagenEntrada.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImagenEntrada.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImagenEntrada.CopyToAsync(fileStream);
+                }
+
+                entrada.ImagenRuta = "/uploads/" + uniqueFileName;
+            }
+
+            // Crear pregunta con el texto de la entrada (texto de la pregunta = texto de la entrada)
             var pregunta = new Pregunta
             {
-                Texto = TextoPregunta,
+                Texto = entrada.Texto,
                 Fecha = DateTime.Now,
                 Activa = true,
-                MiembroId = user.Id, // El mismo autor
+                MiembroId = user.Id,
                 Entrada = entrada
             };
 
@@ -219,6 +244,8 @@ namespace Foro2._0.Controllers
 
             return Redirect(returnUrl ?? Url.Action("Index", "Home"));
         }
+
+
 
 
 
@@ -366,6 +393,8 @@ namespace Foro2._0.Controllers
             if (entrada == null || entrada.MiembroId != userId)
                 return Unauthorized();
 
+            ViewBag.EntradaId = entradaId;  //Aca le pasamos el ID a la View
+
             return View(entrada.MiembrosHabilitados);
         }
 
@@ -390,6 +419,30 @@ namespace Foro2._0.Controllers
             TempData["Mensaje"] = "Solicitud aceptada.";
             return RedirectToAction("VerSolicitudes", new { entradaId = habilitacion.EntradaId });
         }
+
+
+        [Authorize(Roles = "MIEMBRO")]
+        [HttpPost]
+        public async Task<IActionResult> RechazarSolicitud(int habilitacionId)
+        {
+            var habilitacion = await _context.Habilitaciones
+                .Include(h => h.Entrada)
+                .FirstOrDefaultAsync(h => h.Id == habilitacionId);
+
+            if (habilitacion == null)
+                return NotFound();
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (habilitacion.Entrada.MiembroId != userId)
+                return Unauthorized();
+
+            _context.Habilitaciones.Remove(habilitacion);
+            await _context.SaveChangesAsync();
+
+            TempData["Rechazo"] = "Solicitud rechazada correctamente.";
+            return RedirectToAction("VerSolicitudes", new { entradaId = habilitacion.EntradaId });
+        }
+
 
 
     }

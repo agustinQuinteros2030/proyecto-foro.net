@@ -4,45 +4,40 @@
     ViewData["Title"] = "Crear Nueva Entrada";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1 class="mb-4">@ViewData["Title"]</h1>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="form-group">
-        <label asp-for="Titulo"></label>
+    <div class="mb-3">
+        <label asp-for="Titulo" class="form-label"></label>
         <input asp-for="Titulo" class="form-control" />
         <span asp-validation-for="Titulo" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Texto"></label>
-        <textarea asp-for="Texto" class="form-control"></textarea>
+    <div class="mb-3">
+        <label for="ImagenEntrada" class="form-label">Subir imagen (opcional)</label>
+        <input type="file" name="ImagenEntrada" accept="image/*" class="form-control" />
+    </div>
+
+
+    <div class="mb-3">
+        <label for="Texto" class="form-label">Texto de la Pregunta Inicial</label>
+        <textarea asp-for="Texto" class="form-control" rows="5" placeholder="Escribí la pregunta inicial aquí..."></textarea>
         <span asp-validation-for="Texto" class="text-danger"></span>
     </div>
 
-    <div class="form-group form-check">
-        <input asp-for="Privada" class="form-check-input" />
-        <label asp-for="Privada" class="form-check-label"></label>
+    <div class="form-check mb-4">
+        <input asp-for="Privada" class="form-check-input" id="PrivadaCheck" />
+        <label asp-for="Privada" class="form-check-label" for="PrivadaCheck">Entrada privada</label>
     </div>
 
-    <hr />
+    <h4 class="mb-3">Categoría</h4>
 
-    <h4>Primera Pregunta</h4>
-
-    <div class="form-group">
-        <label for="TextoPregunta">Texto de la Pregunta</label>
-        <textarea name="TextoPregunta" id="TextoPregunta" class="form-control" required></textarea>
-    </div>
-
-    <hr />
-
-    <h4>Categoría</h4>
-
-    <div class="form-group">
+    <div class="mb-3">
         <label>Elegir Categoría Existente</label>
-        <select name="CategoriaId" class="form-control">
+        <select name="CategoriaId" class="form-select">
             <option value="">-- Seleccionar --</option>
             @foreach (var cat in (SelectList)ViewBag.Categorias)
             {
@@ -51,12 +46,12 @@
         </select>
     </div>
 
-    <div class="form-group">
+    <div class="mb-3">
         <label>O Crear Nueva Categoría</label>
         <input type="text" name="NuevaCategoria" class="form-control" placeholder="Nombre nueva categoría (si no selecciona existente)" />
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Crear Entrada con Pregunta</button>
+    <button type="submit" class="btn btn-primary mt-3 fw-semibold">Crear Entrada con Pregunta</button>
 
 </form>
 

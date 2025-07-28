@@ -22,6 +22,8 @@ namespace Foro2._0.Models
         public int MiembroId { get; set; }
         public int CategoriaId { get; set; }
         public Categoria Categoria { get; set; }
+
+        public string ImagenRuta { get; set; }
         public List<Pregunta> Preguntas { get; set; } = new List<Pregunta>();
 
         public List<Habilitacion> MiembrosHabilitados { get; set; } = new List<Habilitacion>();

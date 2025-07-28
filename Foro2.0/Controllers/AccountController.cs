@@ -1,9 +1,12 @@
 ﻿using Foro2._0.Models;
 using Foro2._0.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Foro2._0.Controllers
@@ -14,29 +17,29 @@ namespace Foro2._0.Controllers
         private SignInManager<Persona> _signInManager;
         private ForoContext _context;
         private readonly RoleManager<Rol> _roleManager;
+        private readonly IHostEnvironment _environment;
 
-        public AccountController(UserManager<Persona> userManager, SignInManager<Persona> signInManager, ForoContext context, RoleManager<Rol> roleManager)
+        public AccountController(UserManager<Persona> userManager, SignInManager<Persona> signInManager, ForoContext context, RoleManager<Rol> roleManager, IHostEnvironment environment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _roleManager = roleManager;
+            _environment = environment;
         }
         public IActionResult RegistrarMiembro()
         {
             return View();
         }
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RegistrarMiembro(RegistroUsuario model)
+        public async Task<IActionResult> RegistrarMiembro(RegistroUsuario model, IFormFile? ImagenPerfil)
         {
             if (ModelState.IsValid)
             {
                 var user = new Miembro
                 {
                     UserName = model.Username,     // Identity lo necesita para loguear
-                
                     Nombre = model.Nombre,
                     Apellido = model.Apellido,
                     Telefono = model.Telefono,
@@ -44,7 +47,25 @@ namespace Foro2._0.Controllers
                     FechaAlta = DateTime.Now
                 };
 
+                // Subida de imagen de perfil (Nueva funcionalidad)
+                if (ImagenPerfil != null && ImagenPerfil.Length > 0)
+                {
+                    // Corrected line to fix syntax and declaration issues
+                    var uploadsFolder = Path.Combine(_environment.ContentRootPath, "wwwroot", "uploads", "perfiles");
 
+                    // Create the directory if it does not exist
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ImagenPerfil.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImagenPerfil.CopyToAsync(fileStream);
+                    }
+
+                    user.ImagenPerfilRuta = "/uploads/perfiles/" + uniqueFileName;
+                }
 
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
@@ -60,6 +81,7 @@ namespace Foro2._0.Controllers
 
             return View(model);
         }
+
         [HttpGet]
         [AllowAnonymous]
         [ActionName("Login")]

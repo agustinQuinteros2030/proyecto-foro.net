@@ -10,5 +10,8 @@ namespace Foro2._0.Models
         public List<Reaccion> ReaccionesRealizadas { get; set; } = new List<Reaccion>();
         public List<Habilitacion> AccesoEntradasPrivadas { get; set; } = new List<Habilitacion>();
 
+        public string ImagenPerfilRuta { get; set; }
+
+
     }
 }
