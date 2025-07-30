@@ -3,10 +3,12 @@ using Foro2._0.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading.Tasks;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace Foro2._0
 {
@@ -16,12 +18,15 @@ namespace Foro2._0
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Base de datos en memoria
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
             builder.Services.AddDbContext<ForoContext>(options =>
-            {
-                options.UseInMemoryDatabase("ForoDb");
-                options.EnableSensitiveDataLogging();
-            });
+                options.UseMySql(
+                    connectionString,
+                    new MySqlServerVersion(new Version(9, 3, 0)) // Cambia por tu versión de MySQL
+                )
+            );
+
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -57,8 +62,10 @@ namespace Foro2._0
                 var roleManager = services.GetRequiredService<RoleManager<Rol>>();
                 var context = services.GetRequiredService<ForoContext>();
 
-                // Si tu método Seed es async, acá para no hacer Main async, esperá la tarea con .GetAwaiter().GetResult()
-                Precarga.Seed(userManager, roleManager, context).GetAwaiter().GetResult();
+            
+
+
+              //  Precarga.Seed(userManager, roleManager, context).GetAwaiter().GetResult();
             }
 
             if (!app.Environment.IsDevelopment())

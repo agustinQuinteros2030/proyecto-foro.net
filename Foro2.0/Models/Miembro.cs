@@ -2,7 +2,7 @@
 
 namespace Foro2._0.Models
 {
-    public class Miembro:Persona
+    public class Miembro : Persona
     {
         public List<Entrada> EntradasCreadas { get; set; } = new List<Entrada>();
         public List<Pregunta> PreguntasRealizadas { get; set; } = new List<Pregunta>();
