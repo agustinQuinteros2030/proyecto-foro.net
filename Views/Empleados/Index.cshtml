@@ -1,0 +1,30 @@
+﻿@model IEnumerable<Foro2._0.Models.Empleado>
+
+<h2>Lista de Empleados</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Legajo</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Fecha Alta</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var emp in Model)
+        {
+            <tr>
+                <td>@emp.Legajo</td>
+                <td>@emp.Nombre</td>
+                <td>@emp.Apellido</td>
+                <td>@emp.Telefono</td>
+                <td>@emp.Email</td>
+                <td>@emp.FechaAlta.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

@@ -1,0 +1,32 @@
+﻿@model List<Foro2._0.Models.Categoria>
+
+@{
+    ViewData["Title"] = "Categorías del Foro";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Entradas</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cat in Model)
+        {
+            <tr>
+                <td>@cat.Nombre</td>
+                <td>@(cat.Entradas?.Count ?? 0)</td>
+                <td>
+                    <a asp-controller="Categorias" asp-action="Details" asp-route-id="@cat.Id" class="btn btn-sm btn-primary">
+                        Ver Entradas de esta categoria
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
