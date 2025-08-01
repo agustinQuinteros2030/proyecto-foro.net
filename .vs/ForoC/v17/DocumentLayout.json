@@ -7,6 +7,18 @@
       "RelativeMoniker": "D:0:0:{D9931432-5788-45ED-94F6-FD00155E6FDC}|ForoC.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\proyectoForo\\Foro2.0\\.vs\\VSWorkspaceState.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.vs\\VSWorkspaceState.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\proyectoForo\\Foro2.0\\.vs\\ProjectEvaluation\\foroc.strings.v9.bin||{25834150-CD7E-11D0-92DF-00A0C9138C45}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.vs\\ProjectEvaluation\\foroc.strings.v9.bin||{25834150-CD7E-11D0-92DF-00A0C9138C45}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\proyectoForo\\Foro2.0\\.vs\\ProjectEvaluation\\foroc.metadata.v9.bin||{25834150-CD7E-11D0-92DF-00A0C9138C45}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.vs\\ProjectEvaluation\\foroc.metadata.v9.bin||{25834150-CD7E-11D0-92DF-00A0C9138C45}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\proyectoForo\\Foro2.0\\ForoC.csproj.user||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ForoC.csproj.user||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     }
@@ -18,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 255,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -45,6 +57,49 @@
               "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "VSWorkspaceState.json",
+              "DocumentMoniker": "F:\\proyectoForo\\Foro2.0\\.vs\\VSWorkspaceState.json",
+              "RelativeDocumentMoniker": ".vs\\VSWorkspaceState.json",
+              "ToolTip": "F:\\proyectoForo\\Foro2.0\\.vs\\VSWorkspaceState.json",
+              "RelativeToolTip": ".vs\\VSWorkspaceState.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-08-01T21:09:03.47Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "foroc.strings.v9.bin",
+              "DocumentMoniker": "F:\\proyectoForo\\Foro2.0\\.vs\\ProjectEvaluation\\foroc.strings.v9.bin",
+              "RelativeDocumentMoniker": ".vs\\ProjectEvaluation\\foroc.strings.v9.bin",
+              "ToolTip": "F:\\proyectoForo\\Foro2.0\\.vs\\ProjectEvaluation\\foroc.strings.v9.bin",
+              "RelativeToolTip": ".vs\\ProjectEvaluation\\foroc.strings.v9.bin",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-08-01T21:08:58.294Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "foroc.metadata.v9.bin",
+              "DocumentMoniker": "F:\\proyectoForo\\Foro2.0\\.vs\\ProjectEvaluation\\foroc.metadata.v9.bin",
+              "RelativeDocumentMoniker": ".vs\\ProjectEvaluation\\foroc.metadata.v9.bin",
+              "ToolTip": "F:\\proyectoForo\\Foro2.0\\.vs\\ProjectEvaluation\\foroc.metadata.v9.bin",
+              "RelativeToolTip": ".vs\\ProjectEvaluation\\foroc.metadata.v9.bin",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-08-01T21:08:57.004Z"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Program.cs",
@@ -52,14 +107,14 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "F:\\proyectoForo\\Foro2.0\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAcwCYAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-13T00:21:38.826Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "ForoC.csproj.user",
               "DocumentMoniker": "F:\\proyectoForo\\Foro2.0\\ForoC.csproj.user",
               "RelativeDocumentMoniker": "ForoC.csproj.user",
