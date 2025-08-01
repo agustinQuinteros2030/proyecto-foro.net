@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/slnx.sqlite
+/.vs/Foro2.0/FileContentIndex/352c4aa4-180f-4825-93e5-e5397f7690de.vsidx
+/.vs/Foro2.0/FileContentIndex/ae5c932d-260d-4013-a172-2b622cfff50c.vsidx
+/.vs/Foro2.0/CopilotIndices/17.13.444.19527/SemanticSymbols.db-wal
+/.vs/Foro2.0/FileContentIndex/ac0be6d8-40e9-490b-a060-70ee4bf49303.vsidx
+/.vs/Foro2.0/FileContentIndex/7443f89a-cebc-4fb1-aacb-863480f7156f.vsidx
+/.vs/Foro2.0/FileContentIndex
+/.vs/slnx.sqlite-journal
