@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ForoC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3a79007d5f51d3c3386127c25d7fc0e258716f30")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1c6ecf5efa468a5b0ac649b0e5b6795c1fd50511")]
 [assembly: System.Reflection.AssemblyProductAttribute("ForoC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ForoC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
